@@ -18,7 +18,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
      * @param integer  $level    Level above which entries should be logged
      * @param boolean  $bubble   Whether to bubble to the next handler or not
      */
-    public function __construct($notifier, $level = Logger::ERROR, $bubble = true)
+    public function __construct(\Airbrake\Notifier $notifier, $level = Logger::ERROR, $bubble = true)
     {
         $this->notifier = $notifier;
         parent::__construct($level, $bubble);

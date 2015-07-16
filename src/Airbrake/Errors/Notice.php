@@ -1,4 +1,5 @@
 <?php
 namespace Airbrake\Errors;
 
-class Notice extends Base {}
+class Notice extends Base
+{}
