@@ -15,7 +15,8 @@ class NotifierMock extends \Airbrake\Notifier
     }
 }
 
-class MonologHandlerTest extends \PHPUnit_Framework_TestCase {
+class MonologHandlerTest extends \PHPUnit_Framework_TestCase
+{
     public function setUp()
     {
         $this->notifier = new NotifierMock(array(
@@ -41,7 +42,7 @@ class MonologHandlerTest extends \PHPUnit_Framework_TestCase {
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = array(array(
           'file' => __FILE__,
-          'line' => 29,
+          'line' => 30,
           'function' => 'Monolog\Logger->addError',
         ));
         for ($i = 0; $i < count($wanted); $i++) {

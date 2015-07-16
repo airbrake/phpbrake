@@ -1,20 +1,22 @@
+# PHPBrake [![Circle CI](https://circleci.com/gh/airbrake/phpbrake.svg?style=svg)](https://circleci.com/gh/airbrake/phpbrake)
+
 ## Quickstart
 
 ```php
 // Create new Notifier instance.
-$notifier = new Airbrake\Notifier(array(
+$notifier = new \Airbrake\Notifier(array(
     'projectId' => 12345, // FIX ME
     'projectKey' => 'abcdefg', // FIX ME
 ));
 
 // Set global notifier instance.
-Airbrake\Instance::set($notifier);
+\Airbrake\Instance::set($notifier);
 
 // Somewhere in the app...
 try {
     throw new Exception('hello from phpbrake');
 } catch(Exception $e) {
-    Airbrake\Instance::notify($e);
+    \Airbrake\Instance::notify($e);
 }
 ```
 
@@ -62,7 +64,7 @@ $notifier->addFilter(function ($notice) {
 Notifier can handle PHP errors, uncatched exceptions and shutdown. You can register appropriate handlers using following code:
 
 ```php
-$handler = new Airbrake\ErrorHandler($notifier);
+$handler = new \Airbrake\ErrorHandler($notifier);
 $handler->register();
 ```
 
@@ -77,8 +79,8 @@ register_shutdown_function(array($this, 'onShutdown'));
 ## Monolog integration
 
 ```
-$log = new Monolog\Logger('billing');
-$log->pushHandler(new Airbrake\MonologHandler($notifier));
+$log = new \Monolog\Logger('billing');
+$log->pushHandler(new \Airbrake\MonologHandler($notifier));
 
 $log->addError('charge failed', array('client_id' => 123));
 ```
