@@ -52,8 +52,7 @@ class Notifier {
 
     $context = array(
       'os' => php_uname(),
-      'language' => 'php',
-      'version' => phpversion(),
+      'language' => 'php ' . phpversion(),
     );
     if ($_SERVER['DOCUMENT_ROOT'] !== '') {
       $context['rootDir'] = $_SERVER['DOCUMENT_ROOT'];

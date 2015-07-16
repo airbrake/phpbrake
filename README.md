@@ -73,3 +73,17 @@ set_error_handler(array($this, 'onError'), error_reporting());
 set_exception_handler(array($this, 'onException'));
 register_shutdown_function(array($this, 'onShutdown'));
 ```
+
+## Monolog integration
+
+```
+$log = new Monolog\Logger('billing');
+$log->pushHandler(new Airbrake\MonologHandler($notifier));
+
+$log->addError('charge failed', array('client_id' => 123));
+```
+
+## Running tests
+
+   composer install
+   bin/phpunit
