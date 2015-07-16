@@ -1,5 +1,9 @@
 # PHPBrake [![Circle CI](https://circleci.com/gh/airbrake/phpbrake.svg?style=svg)](https://circleci.com/gh/airbrake/phpbrake)
 
+## Installation
+
+    composer require airbrake/phpbrake
+
 ## Quickstart
 
 ```php
