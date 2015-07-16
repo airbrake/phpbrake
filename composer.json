@@ -5,7 +5,8 @@
   "homepage": "https://airbrake.io",
   "license": "MIT",
   "require-dev": {
-    "phpunit/phpunit": "^4.7"
+    "phpunit/phpunit": "^4.7",
+    "monolog/monolog": "^1.15"
   },
   "autoload": {
     "psr-0": {
@@ -14,8 +15,5 @@
   },
   "config": {
     "bin-dir": "bin"
-  },
-  "require": {
-    "monolog/monolog": "^1.15"
   }
 }
