@@ -1,5 +1,5 @@
 <?php
-namespace AirbrakeTests;
+namespace NotifierTests;
 
 class NotifierMock extends \Airbrake\Notifier {
   public $url;
@@ -41,7 +41,7 @@ class NotifyTest extends \PHPUnit_Framework_TestCase {
     $wanted = array(array(
       'file' => dirname(dirname(__FILE__)) . '/vendor/phpunit/phpunit/src/Framework/TestCase.php',
       'line' => 742,
-      'function' => 'AirbrakeTests\NotifyTest->setUp',
+      'function' => 'NotifierTests\NotifyTest->setUp',
     ));
     for ($i = 0; $i < count($wanted); $i++) {
       $this->assertEquals($backtrace[$i], $wanted[$i]);
