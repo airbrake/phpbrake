@@ -1,4 +1,5 @@
 <?php
 namespace Airbrake\Errors;
 
-class Fatal extends Base {}
+class Fatal extends Base
+{}

@@ -3,8 +3,8 @@
 ```php
 // Create new Notifier instance.
 $notifier = new Airbrake\Notifier(array(
-  'projectId' => 12345, // FIX ME
-  'projectKey' => 'abcdefg', // FIX ME
+    'projectId' => 12345, // FIX ME
+    'projectKey' => 'abcdefg', // FIX ME
 ));
 
 // Set global notifier instance.
@@ -12,9 +12,9 @@ Airbrake\Instance::set($notifier);
 
 // Somewhere in the app...
 try {
-  throw new Exception('hello from phpbrake');
+    throw new Exception('hello from phpbrake');
 } catch(Exception $e) {
-  Airbrake\Instance::notify($e);
+    Airbrake\Instance::notify($e);
 }
 ```
 
@@ -30,8 +30,8 @@ Notifier API constists of 4 methods:
 
 ```php
 $notifier->addFilter(function ($notice) {
-  $notice['context']['environment'] = 'production';
-  return $notice;
+    $notice['context']['environment'] = 'production';
+    return $notice;
 });
 ```
 
@@ -39,10 +39,10 @@ $notifier->addFilter(function ($notice) {
 
 ```php
 $notifier->addFilter(function ($notice) {
-  if (isset($notice['params']['password'])) {
-    $notice['params']['password'] = 'FILTERED';
-  }
-  return $notice;
+    if (isset($notice['params']['password'])) {
+        $notice['params']['password'] = 'FILTERED';
+    }
+    return $notice;
 });
 ```
 
@@ -50,10 +50,10 @@ $notifier->addFilter(function ($notice) {
 
 ```php
 $notifier->addFilter(function ($notice) {
-  if ($notice['errors'][0]['type'] == 'MyExceptionClass') {
-    return false;
-  }
-  return $notice;
+    if ($notice['errors'][0]['type'] == 'MyExceptionClass') {
+        return false;
+    }
+    return $notice;
 });
 ```
 
@@ -85,5 +85,11 @@ $log->addError('charge failed', array('client_id' => 123));
 
 ## Running tests
 
-   composer install
-   bin/phpunit
+    composer install
+    bin/phpunit
+
+## PHPDoc
+
+    composer require phpdocumentor/phpdocumentor
+    bin/phpdoc -d src
+    firefox output/index.html
