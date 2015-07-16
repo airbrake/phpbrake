@@ -11,7 +11,7 @@ class Base
   private $line;
   private $trace;
 
-  public function __construct($message, $file, $line, $trace)
+  public function __construct($message, $file, $line, $trace = array())
   {
     $this->message = $message;
     $this->file = $file;
