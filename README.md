@@ -16,6 +16,10 @@ $notifier = new \Airbrake\Notifier(array(
 // Set global notifier instance.
 \Airbrake\Instance::set($notifier);
 
+// Register error and exception handlers.
+$handler = new \Airbrake\ErrorHandler($notifier);
+$handler->register();
+
 // Somewhere in the app...
 try {
     throw new Exception('hello from phpbrake');
@@ -57,6 +61,7 @@ $notifier->addFilter(function ($notice) {
 ```php
 $notifier->addFilter(function ($notice) {
     if ($notice['errors'][0]['type'] == 'MyExceptionClass') {
+        // Ignore this exception.
         return false;
     }
     return $notice;
