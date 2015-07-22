@@ -85,8 +85,9 @@ class Notifier
         if (($hostname = gethostname()) !== false) {
             $context['hostname'] = $hostname;
         }
-        if (isset($_SERVER['REQUEST_URI']) && isset($_SERVER['QUERY_STRING'])) {
-            $context['url'] = $_SERVER['REQUEST_URI'] + '?' + $_SERVER['QUERY_STRING'];
+        if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
+            $scheme = isset($_SERVER['HTTPS']) ? 'https' : 'http';
+            $context['url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         }
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $context['userAgent'] = $_SERVER['HTTP_USER_AGENT'];

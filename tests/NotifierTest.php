@@ -24,6 +24,8 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
             'projectId' => 1,
             'projectKey' => 'api_key',
         ));
+        $_SERVER['HTTP_HOST'] = 'airbrake.io';
+        $_SERVER['REQUEST_URI'] = '/hello';
         $this->notifier->notify(new \Exception('hello'));
     }
 
@@ -35,14 +37,17 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testPostsNotice()
+    public function testPostsError()
     {
         $notice = $this->notifier->notice;
         $error = $notice['errors'][0];
         $this->assertEquals($error['type'], 'Exception');
         $this->assertEquals($error['message'], 'hello');
+    }
 
-        $backtrace = $error['backtrace'];
+    public function testPostsBacktrace()
+    {
+        $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = array(array(
             'file' => dirname(dirname(__FILE__)) . '/vendor/phpunit/phpunit/src/Framework/TestCase.php',
             'line' => 742,
@@ -51,6 +56,14 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($backtrace[$i], $wanted[$i]);
         }
+    }
+
+    public function testPostsURL()
+    {
+        $this->assertEquals(
+            $this->notifier->notice['context']['url'],
+            'http://airbrake.io/hello'
+        );
     }
 }
 
