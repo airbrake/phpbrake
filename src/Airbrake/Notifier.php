@@ -96,7 +96,7 @@ class Notifier
         $notice = array(
             'notifier' => array(
                 'name' => 'phpbrake',
-                'version' => '0.0.1',
+                'version' => '0.0.4',
                 'url' => 'https://github.com/airbrake/phpbrake',
             ),
             'errors' => array($error),
