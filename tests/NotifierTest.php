@@ -67,7 +67,27 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
     }
 }
 
-class FilterTest extends \PHPUnit_Framework_TestCase
+class FilterReturnsNullTest extends \PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        $this->notifier = new NotifierMock(array(
+            'projectId' => 1,
+            'projectKey' => 'api_key',
+        ));
+        $this->notifier->addFilter(function() {
+            return null;
+        });
+        $this->notifier->notify(new \Exception('hello'));
+    }
+
+    public function testNoticeIsIgnored()
+    {
+        $this->assertNull($this->notifier->notice);
+    }
+}
+
+class FilterReturnsFalseTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

@@ -144,7 +144,7 @@ class Notifier
     {
         foreach ($this->filters as $filter) {
             $notice = $filter($notice);
-            if ($notice === false) {
+            if ($notice === null || $notice === false) {
                 // Ignore notice.
                 return 0;
             }

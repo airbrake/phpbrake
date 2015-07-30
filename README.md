@@ -64,7 +64,7 @@ $notifier->addFilter(function ($notice) {
 $notifier->addFilter(function ($notice) {
     if ($notice['errors'][0]['type'] == 'MyExceptionClass') {
         // Ignore this exception.
-        return false;
+        return null;
     }
     return $notice;
 });
