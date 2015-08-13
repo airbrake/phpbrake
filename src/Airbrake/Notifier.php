@@ -126,7 +126,7 @@ class Notifier
             ),
         );
         $context = stream_context_create($options);
-        $respData = file_get_contents($url, false, $context);
+        $respData = @file_get_contents($url, false, $context);
         if ($respData === false) {
             // TODO: handle this? how?
             return 0;
