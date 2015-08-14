@@ -11,6 +11,10 @@ class NotifierMock extends \Airbrake\Notifier
         $this->url = $url;
         $this->data = $data;
         $this->notice = json_decode($data, true);
+        return array(
+            'status' => 'HTTP/1.1 201 CREATED',
+            'data' => '{"id":"12345"}',
+        );
     }
 }
 
@@ -26,7 +30,8 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
         ));
         $_SERVER['HTTP_HOST'] = 'airbrake.io';
         $_SERVER['REQUEST_URI'] = '/hello';
-        $this->notifier->notify(new \Exception('hello'));
+        $id = $this->notifier->notify(new \Exception('hello'));
+        $this->assertEquals($id, '12345');
     }
 
     public function testPostsToURL()

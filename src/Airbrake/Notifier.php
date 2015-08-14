@@ -120,19 +120,18 @@ class Notifier
     {
         $options = array(
             'http' => array(
-                'header'    => "Content-type: application/json\r\n",
-                'method'    => 'POST',
+                'header' => "Content-type: application/json\r\n",
+                'method' => 'POST',
                 'content' => $data,
+                'ignore_errors' => true,
             ),
         );
         $context = stream_context_create($options);
         $respData = file_get_contents($url, false, $context);
-        if ($respData === false) {
-            // TODO: handle this? how?
-            return 0;
-        }
-        $resp = json_decode($respData);
-        return $resp->id;
+        return array(
+            'status' => $http_response_header,
+            'data' => $respData,
+        );
     }
 
     /**
@@ -156,7 +155,12 @@ class Notifier
             $opt['host'], $opt['projectId'], $opt['projectKey']
         );
         $data = json_encode($notice);
-        return $this->postNotice($url, $data);
+        $resp = $this->postNotice($url, $data);
+        if ($resp['data'] === false) {
+            return 0;
+        }
+        $resp = json_decode($resp['data']);
+        return $resp->id;
     }
 
     /**
