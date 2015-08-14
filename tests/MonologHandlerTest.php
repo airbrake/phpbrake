@@ -12,6 +12,10 @@ class NotifierMock extends \Airbrake\Notifier
         $this->url = $url;
         $this->data = $data;
         $this->notice = json_decode($data, true);
+        return array(
+            'status' => 'HTTP/1.1 201 CREATED',
+            'data' => '{"id":"12345"}',
+        );
     }
 }
 
@@ -42,7 +46,7 @@ class MonologHandlerTest extends \PHPUnit_Framework_TestCase
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = array(array(
           'file' => __FILE__,
-          'line' => 30,
+          'line' => 34,
           'function' => 'Monolog\Logger->addError',
         ));
         for ($i = 0; $i < count($wanted); $i++) {
