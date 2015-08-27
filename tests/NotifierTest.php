@@ -1,24 +1,10 @@
 <?php
-namespace NotifierTests;
 
-class NotifierMock extends \Airbrake\Notifier
-{
-    public $url;
-    public $data;
-    public $notice;
+namespace Airbrake\Tests;
 
-    public function postNotice($url, $data) {
-        $this->url = $url;
-        $this->data = $data;
-        $this->notice = json_decode($data, true);
-        return array(
-            'status' => 'HTTP/1.1 201 CREATED',
-            'data' => '{"id":"12345"}',
-        );
-    }
-}
+use PHPUnit_Framework_TestCase;
 
-class NotifyTest extends \PHPUnit_Framework_TestCase
+class NotifyTest extends PHPUnit_Framework_TestCase
 {
     private $notifier;
 
@@ -56,7 +42,7 @@ class NotifyTest extends \PHPUnit_Framework_TestCase
         $wanted = array(array(
             'file' => dirname(dirname(__FILE__)) . '/vendor/phpunit/phpunit/src/Framework/TestCase.php',
             'line' => 742,
-            'function' => 'NotifierTests\NotifyTest->setUp',
+            'function' => 'Airbrake\Tests\NotifyTest->setUp',
         ));
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($backtrace[$i], $wanted[$i]);

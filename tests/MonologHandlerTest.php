@@ -1,25 +1,10 @@
 <?php
-namespace MonologHandlerTests;
 
-class NotifierMock extends \Airbrake\Notifier
-{
-    public $url;
-    public $data;
-    public $notice;
+namespace Airbrake\Tests;
 
-    public function postNotice($url, $data)
-    {
-        $this->url = $url;
-        $this->data = $data;
-        $this->notice = json_decode($data, true);
-        return array(
-            'status' => 'HTTP/1.1 201 CREATED',
-            'data' => '{"id":"12345"}',
-        );
-    }
-}
+use PHPUnit_Framework_TestCase;
 
-class MonologHandlerTest extends \PHPUnit_Framework_TestCase
+class MonologHandlerTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -46,7 +31,7 @@ class MonologHandlerTest extends \PHPUnit_Framework_TestCase
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = array(array(
           'file' => __FILE__,
-          'line' => 34,
+          'line' => 19,
           'function' => 'Monolog\Logger->addError',
         ));
         for ($i = 0; $i < count($wanted); $i++) {
