@@ -111,3 +111,7 @@ composer require phpdocumentor/phpdocumentor
 bin/phpdoc -d src
 firefox output/index.html
 ```
+
+## License
+
+PHPBrake is licensed under [The MIT License (MIT)](LICENSE).
