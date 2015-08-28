@@ -10,10 +10,10 @@ class NotifyTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->notifier = new NotifierMock(array(
+        $this->notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
-        ));
+        ]);
         $_SERVER['HTTP_HOST'] = 'airbrake.io';
         $_SERVER['REQUEST_URI'] = '/hello';
         $id = $this->notifier->notify(new \Exception('hello'));
@@ -39,11 +39,11 @@ class NotifyTest extends PHPUnit_Framework_TestCase
     public function testPostsBacktrace()
     {
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
-        $wanted = array(array(
-            'file' => dirname(dirname(__FILE__)) . '/vendor/phpunit/phpunit/src/Framework/TestCase.php',
+        $wanted = [[
+            'file' => dirname(dirname(__FILE__)).'/vendor/phpunit/phpunit/src/Framework/TestCase.php',
             'line' => 742,
             'function' => 'Airbrake\Tests\NotifyTest->setUp',
-        ));
+        ]];
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($backtrace[$i], $wanted[$i]);
         }
@@ -62,12 +62,12 @@ class FilterReturnsNullTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->notifier = new NotifierMock(array(
+        $this->notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
-        ));
-        $this->notifier->addFilter(function() {
-            return null;
+        ]);
+        $this->notifier->addFilter(function () {
+            return;
         });
         $this->notifier->notify(new \Exception('hello'));
     }
@@ -82,11 +82,11 @@ class FilterReturnsFalseTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->notifier = new NotifierMock(array(
+        $this->notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
-        ));
-        $this->notifier->addFilter(function() {
+        ]);
+        $this->notifier->addFilter(function () {
             return false;
         });
         $this->notifier->notify(new \Exception('hello'));
@@ -102,13 +102,14 @@ class ModificationTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->notifier = new NotifierMock(array(
+        $this->notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
-        ));
-        $this->notifier->addFilter(function() {
+        ]);
+        $this->notifier->addFilter(function () {
             $notice['context']['environment'] = 'production';
             unset($notice['environment']);
+
             return $notice;
         });
         $this->notifier->notify(new \Exception('hello'));
