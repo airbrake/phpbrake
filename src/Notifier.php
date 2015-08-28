@@ -1,4 +1,5 @@
 <?php
+
 namespace Airbrake;
 
 /**
@@ -14,17 +15,17 @@ class Notifier
     /**
      * @var callable[]
      */
-    private $filters = array();
+    private $filters = [];
 
     /**
      * @param array $opt Options such as projectId and projectKey
      */
-    public function __construct($opt = array())
+    public function __construct($opt = [])
     {
         // TODO: test that projectId and projectKey exists
-        $this->opt = array_merge($opt, array(
+        $this->opt = array_merge($opt, [
             'host' => 'api.airbrake.io',
-        ));
+        ]);
     }
 
     /**
@@ -47,38 +48,38 @@ class Notifier
      */
     public function buildNotice($exc)
     {
-        $backtrace = array();
+        $backtrace = [];
         $trace = $exc->getTrace();
         foreach ($trace as $frame) {
             $func = $frame['function'];
             if (isset($frame['class']) && isset($frame['type'])) {
-                $func = $frame['class'] . $frame['type'] . $func;
+                $func = $frame['class'].$frame['type'].$func;
             }
-            $backtrace[] = array(
+            $backtrace[] = [
                 'file' => isset($frame['file']) ? $frame['file'] : '',
                 'line' => isset($frame['line']) ? $frame['line'] : 0,
                 'function' => $func,
-            );
+            ];
         }
 
         if (count($backtrace) === 0) {
-            $backtrace[] = array(
+            $backtrace[] = [
                 'file' => $exc->getFile(),
                 'line' => $exc->getLine(),
                 'function' => '',
-            );
+            ];
         }
 
-        $error = array(
+        $error = [
             'type' => get_class($exc),
             'message' => $exc->getMessage(),
             'backtrace' => $backtrace,
-        );
+        ];
 
-        $context = array(
+        $context = [
             'os' => php_uname(),
-            'language' => 'php ' . phpversion(),
-        );
+            'language' => 'php '.phpversion(),
+        ];
         if ($_SERVER['DOCUMENT_ROOT'] !== '') {
             $context['rootDir'] = $_SERVER['DOCUMENT_ROOT'];
         }
@@ -87,22 +88,22 @@ class Notifier
         }
         if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
             $scheme = isset($_SERVER['HTTPS']) ? 'https' : 'http';
-            $context['url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $context['url'] = $scheme.'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
         }
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $context['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
         }
 
-        $notice = array(
-            'notifier' => array(
+        $notice = [
+            'notifier' => [
                 'name' => 'phpbrake',
                 'version' => '0.0.5',
                 'url' => 'https://github.com/airbrake/phpbrake',
-            ),
-            'errors' => array($error),
+            ],
+            'errors' => [$error],
             'context' => $context,
             'environment' => $_SERVER,
-        );
+        ];
         if (!empty($_REQUEST)) {
             $notice['params'] = $_REQUEST;
         }
@@ -118,20 +119,21 @@ class Notifier
      */
     protected function postNotice($url, $data)
     {
-        $options = array(
-            'http' => array(
+        $options = [
+            'http' => [
                 'header' => "Content-type: application/json\r\n",
                 'method' => 'POST',
                 'content' => $data,
                 'ignore_errors' => true,
-            ),
-        );
+            ],
+        ];
         $context = stream_context_create($options);
         $respData = file_get_contents($url, false, $context);
-        return array(
+
+        return [
             'status' => $http_response_header,
             'data' => $respData,
-        );
+        ];
     }
 
     /**
@@ -160,6 +162,7 @@ class Notifier
             return 0;
         }
         $resp = json_decode($resp['data']);
+
         return $resp->id;
     }
 
@@ -173,6 +176,7 @@ class Notifier
     public function notify($exc)
     {
         $notice = $this->buildNotice($exc);
+
         return $this->sendNotice($notice);
     }
 }

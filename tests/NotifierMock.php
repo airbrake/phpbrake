@@ -15,9 +15,10 @@ class NotifierMock extends Notifier
         $this->url = $url;
         $this->data = $data;
         $this->notice = json_decode($data, true);
-        return array(
+
+        return [
             'status' => 'HTTP/1.1 201 CREATED',
             'data' => '{"id":"12345"}',
-        );
+        ];
     }
 }

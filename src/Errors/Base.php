@@ -1,4 +1,5 @@
 <?php
+
 namespace Airbrake\Errors;
 
 /**
@@ -6,36 +7,36 @@ namespace Airbrake\Errors;
  */
 class Base
 {
-  private $message;
-  private $file;
-  private $line;
-  private $trace;
+    private $message;
+    private $file;
+    private $line;
+    private $trace;
 
-  public function __construct($message, $file, $line, $trace = array())
-  {
-    $this->message = $message;
-    $this->file = $file;
-    $this->line = $line;
-    $this->trace = $trace;
-  }
+    public function __construct($message, $file, $line, $trace = [])
+    {
+        $this->message = $message;
+        $this->file = $file;
+        $this->line = $line;
+        $this->trace = $trace;
+    }
 
-  public function getMessage()
-  {
-    return $this->message;
-  }
+    public function getMessage()
+    {
+        return $this->message;
+    }
 
-  public function getFile()
-  {
-    return $this->file;
-  }
+    public function getFile()
+    {
+        return $this->file;
+    }
 
-  public function getLine()
-  {
-    return $this->line;
-  }
+    public function getLine()
+    {
+        return $this->line;
+    }
 
-  public function getTrace()
-  {
-    return $this->trace;
-  }
+    public function getTrace()
+    {
+        return $this->trace;
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Airbrake;
 
 use Monolog\Logger;
@@ -15,8 +16,8 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
 
     /**
      * @param Notifier $notifier Notifier instance
-     * @param integer  $level    Level above which entries should be logged
-     * @param boolean  $bubble   Whether to bubble to the next handler or not
+     * @param int  $level    Level above which entries should be logged
+     * @param bool  $bubble   Whether to bubble to the next handler or not
      */
     public function __construct(\Airbrake\Notifier $notifier, $level = Logger::ERROR, $bubble = true)
     {
@@ -32,7 +33,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
         $trace = array_slice(debug_backtrace(), 3);
         $exc = new Errors\Base($record['message'], '', 0, $trace);
         $notice = $this->notifier->buildNotice($exc);
-        $type = $record['channel'] . '.' . $record['level_name'];
+        $type = $record['channel'].'.'.$record['level_name'];
         $notice['errors'][0]['type'] = $type;
         if (!empty($record['context'])) {
             $notice['params']['monolog_context'] = $record['context'];
@@ -40,6 +41,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
         if (!empty($record['extra'])) {
             $notice['params']['monolog_extra'] = $record['extra'];
         }
+
         return $this->notifier->sendNotice($notice);
     }
 }

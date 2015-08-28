@@ -1,4 +1,5 @@
 <?php
+
 namespace Airbrake;
 
 /**
@@ -23,7 +24,8 @@ class ErrorHandler
      * PHP error handler that notifies Airbrake about errors. Should be used
      * with set_error_handler.
      */
-    public function onError($code, $message, $file, $line) {
+    public function onError($code, $message, $file, $line)
+    {
         switch ($code) {
             case E_NOTICE:
             case E_USER_NOTICE:
@@ -65,7 +67,7 @@ class ErrorHandler
             return;
         }
         if ($error['type'] & error_reporting() === 0) {
-         return;
+            return;
         }
         $exc = new Errors\Fatal($error['message'], $error['file'], $error['line']);
         $this->notifier->notify($exc);
@@ -76,8 +78,8 @@ class ErrorHandler
      */
     public function register()
     {
-        set_error_handler(array($this, 'onError'), error_reporting());
-        set_exception_handler(array($this, 'onException'));
-        register_shutdown_function(array($this, 'onShutdown'));
+        set_error_handler([$this, 'onError'], error_reporting());
+        set_exception_handler([$this, 'onException']);
+        register_shutdown_function([$this, 'onShutdown']);
     }
 }
