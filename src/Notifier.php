@@ -32,7 +32,7 @@ class Notifier
      * Appends filter to the list.
      *
      * Filter is a callback that accepts notice. Filter can modify passed
-     * notice or return false if notice must be ignored.
+     * notice or return null if notice must be ignored.
      *
      * @param callable $filter Filter callback
      */
