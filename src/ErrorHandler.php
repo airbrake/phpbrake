@@ -29,20 +29,20 @@ class ErrorHandler
         switch ($code) {
             case E_NOTICE:
             case E_USER_NOTICE:
-                $exc = new Errors\Notice($message, $file, $line, debug_backtrace());
+                $exc = new Errors\Notice($message, '', 0, debug_backtrace());
                 break;
             case E_WARNING:
             case E_USER_WARNING:
-                $exc = new Errors\Warning($message, $file, $line, debug_backtrace());
+                $exc = new Errors\Warning($message, '', 0, debug_backtrace());
                 break;
             case E_ERROR:
             case E_CORE_ERROR:
             case E_RECOVERABLE_ERROR:
-                $exc = new Errors\Fatal($message, $file, $line, debug_backtrace());
+                $exc = new Errors\Fatal($message, '', 0, debug_backtrace());
                 break;
             case E_USER_ERROR:
             default:
-                $exc = new Errors\Error($message, $file, $line, debug_backtrace());
+                $exc = new Errors\Error($message, '', 0, debug_backtrace());
         }
         $this->notifier->notify($exc);
     }

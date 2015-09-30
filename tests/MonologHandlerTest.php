@@ -22,8 +22,8 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
     public function testError()
     {
         $error = $this->notifier->notice['errors'][0];
-        $this->assertEquals($error['type'], 'billing.ERROR');
-        $this->assertEquals($error['message'], 'charge failed');
+        $this->assertEquals('billing.ERROR', $error['type']);
+        $this->assertEquals('charge failed', $error['message']);
     }
 
     public function testBacktrace()
@@ -32,20 +32,24 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
         $wanted = [[
           'file' => __FILE__,
           'line' => 19,
-          'function' => 'Monolog\Logger->addError',
+          'function' => 'Airbrake\Tests\MonologHandlerTest->setUp',
+        ], [
+          'file' => dirname(dirname(__FILE__)).'/vendor/phpunit/phpunit/src/Framework/TestCase.php',
+          'line' => 742,
+          'function' => 'PHPUnit_Framework_TestCase->runBare',
         ]];
         for ($i = 0; $i < count($wanted); $i++) {
-            $this->assertEquals($backtrace[$i], $wanted[$i]);
+            $this->assertEquals($wanted[$i], $backtrace[$i]);
         }
     }
 
     public function testParams()
     {
         $params = $this->notifier->notice['params'];
-        $this->assertEquals($params, [
+        $this->assertEquals([
             'monolog_context' => [
                 'client_id' => 123,
             ],
-        ]);
+        ], $params);
     }
 }
