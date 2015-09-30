@@ -41,6 +41,35 @@ class Notifier
         $this->filters[] = $filter;
     }
 
+    private function backtrace($exc)
+    {
+        $backtrace = [];
+        $trace = $exc->getTrace();
+        if ($exc->getFile() != '') {
+            $backtrace[] = [
+                'file' => $exc->getFile(),
+                'line' => $exc->getLine(),
+                'function' => '',
+            ];
+        }
+        foreach ($trace as $frame) {
+            $func = $frame['function'];
+            if (isset($frame['class']) && isset($frame['type'])) {
+                $func = $frame['class'].$frame['type'].$func;
+            }
+            if (count($backtrace) > 0) {
+                $backtrace[count($backtrace)-1]['function'] = $func;
+            }
+
+            $backtrace[] = [
+                'file' => isset($frame['file']) ? $frame['file'] : '',
+                'line' => isset($frame['line']) ? $frame['line'] : 0,
+                'function' => '',
+            ];
+        }
+        return $backtrace;
+    }
+
     /**
      * Builds Airbrake notice from exception.
      *
@@ -48,32 +77,10 @@ class Notifier
      */
     public function buildNotice($exc)
     {
-        $backtrace = [];
-        $trace = $exc->getTrace();
-        foreach ($trace as $frame) {
-            $func = $frame['function'];
-            if (isset($frame['class']) && isset($frame['type'])) {
-                $func = $frame['class'].$frame['type'].$func;
-            }
-            $backtrace[] = [
-                'file' => isset($frame['file']) ? $frame['file'] : '',
-                'line' => isset($frame['line']) ? $frame['line'] : 0,
-                'function' => $func,
-            ];
-        }
-
-        if (count($backtrace) === 0) {
-            $backtrace[] = [
-                'file' => $exc->getFile(),
-                'line' => $exc->getLine(),
-                'function' => '',
-            ];
-        }
-
         $error = [
             'type' => get_class($exc),
             'message' => $exc->getMessage(),
-            'backtrace' => $backtrace,
+            'backtrace' => $this->backtrace($exc),
         ];
 
         $context = [
