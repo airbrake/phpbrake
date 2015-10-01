@@ -31,7 +31,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
     protected function write(array $record)
     {
         $trace = array_slice(debug_backtrace(), 3);
-        $exc = new Errors\Base($record['message'], '', 0, $trace);
+        $exc = new Errors\Base($record['message'], $trace);
         $notice = $this->notifier->buildNotice($exc);
         $type = $record['channel'].'.'.$record['level_name'];
         $notice['errors'][0]['type'] = $type;

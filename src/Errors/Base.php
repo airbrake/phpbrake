@@ -12,11 +12,14 @@ class Base
     private $line;
     private $trace;
 
-    public function __construct($message, $file, $line, $trace = [])
+    public function __construct($message, $trace = [])
     {
         $this->message = $message;
-        $this->file = $file;
-        $this->line = $line;
+        $frame = array_shift($trace);
+        if ($frame != null) {
+            $this->file = $frame['file'];
+            $this->line = $frame['line'];
+        }
         $this->trace = $trace;
     }
 
