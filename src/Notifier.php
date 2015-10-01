@@ -44,14 +44,12 @@ class Notifier
     private function backtrace($exc)
     {
         $backtrace = [];
+        $backtrace[] = [
+            'file' => $exc->getFile(),
+            'line' => $exc->getLine(),
+            'function' => '',
+        ];
         $trace = $exc->getTrace();
-        if ($exc->getFile() != '') {
-            $backtrace[] = [
-                'file' => $exc->getFile(),
-                'line' => $exc->getLine(),
-                'function' => '',
-            ];
-        }
         foreach ($trace as $frame) {
             $func = $frame['function'];
             if (isset($frame['class']) && isset($frame['type'])) {

@@ -220,3 +220,19 @@ class OnExceptionTest extends \PHPUnit_Framework_TestCase
         }
     }
 }
+
+class OnShutdownTest extends OnErrorTest
+{
+    public function setUp()
+    {
+        $this->notifier = new NotifierMock([
+            'projectId' => 1,
+            'projectKey' => 'api_key',
+        ]);
+        $handler = new \Airbrake\ErrorHandler($this->notifier);
+        $handler->register();
+
+        @Troublemaker::echoUndefinedVar();
+        $handler->onShutdown();
+    }
+}
