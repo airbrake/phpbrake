@@ -167,8 +167,10 @@ class Notifier
             return 0;
         }
         $resp = json_decode($resp['data']);
-
-        return $resp->id;
+        if (isset($resp->id)) {
+            return $resp->id;    
+        }
+        return 0;
     }
 
     /**
