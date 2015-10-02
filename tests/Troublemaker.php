@@ -13,4 +13,14 @@ class Troublemaker
     {
         self::doEchoUndefinedVar();
     }
+
+    private static function doNewException()
+    {
+        return new \Exception('hello');
+    }
+
+    public static function newException()
+    {
+        return self::doNewException();
+    }
 }
