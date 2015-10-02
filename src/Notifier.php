@@ -136,13 +136,17 @@ class Notifier
         $respData = file_get_contents($url, false, $context);
 
         return [
-            'status' => $http_response_header,
+            'headers' => $http_response_header,
             'data' => $respData,
         ];
     }
 
     /**
      * Sends notice to Airbrake.
+     *
+     * It returns an associative array with 2 possible keys:
+     * - ['id' => '12345'] - notice id on success.
+     * - ['error' => 'error message'] - error message on failure.
      *
      * @param array $notice Airbrake notice
      */
@@ -166,9 +170,11 @@ class Notifier
         if ($resp['data'] === false) {
             return 0;
         }
-        $resp = json_decode($resp['data']);
-
-        return $resp->id;
+        $res = json_decode($resp['data'], true);
+        if ($res == null) {
+            return ['error' => $resp['data']];
+        }
+        return $res;
     }
 
     /**
