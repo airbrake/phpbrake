@@ -17,8 +17,12 @@ class Base
         $this->message = $message;
         $frame = array_shift($trace);
         if ($frame != null) {
-            $this->file = $frame['file'];
-            $this->line = $frame['line'];
+            if (isset($frame['file'])) {
+                $this->file = $frame['file'];    
+            }
+            if (isset($frame['line'])) {
+                $this->line = $frame['line'];    
+            }
         }
         $this->trace = $trace;
     }
