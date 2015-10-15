@@ -124,21 +124,32 @@ class Notifier
      */
     protected function postNotice($url, $data)
     {
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/json\r\n",
-                'method' => 'POST',
-                'content' => $data,
-                'ignore_errors' => true,
-            ],
-        ];
-        $context = stream_context_create($options);
-        $respData = file_get_contents($url, false, $context);
-
-        return [
-            'headers' => $http_response_header,
-            'data' => $respData,
-        ];
+        try {
+            $respData = false;
+            $options = [
+                'http' => [
+                    'header' => "Content-type: application/json\r\n",
+                    'method' => 'POST',
+                    'content' => $data,
+                    'ignore_errors' => true,
+                ],
+            ];
+            $context = stream_context_create($options);
+            /* file_get_contents: https://secure.php.net/file_get_contents
+             *
+             * E_WARNING level error is generated if filename cannot be found,
+             * maxlength is less than zero,
+             * or if seeking to the specified offset in the stream fails. 
+            */
+            $respData = file_get_contents($url, false, $context);
+        } catch (Exception $e) {
+            throw $e;
+        } finally {
+            return [
+                'headers' => $http_response_header,
+                'data' => $respData,
+            ];
+        }
     }
 
     /**
