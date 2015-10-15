@@ -23,9 +23,10 @@ class Notifier
     public function __construct($opt = [])
     {
         // TODO: test that projectId and projectKey exists
-        $this->opt = array_merge($opt, [
+        $this->opt = array_merge([
             'host' => 'api.airbrake.io',
-        ]);
+            'secure' => true,
+        ], $opt);
     }
 
     /**
@@ -160,11 +161,7 @@ class Notifier
             }
         }
 
-        $opt = $this->opt;
-        $url = sprintf(
-            'https://%s/api/v3/projects/%d/notices?key=%s',
-            $opt['host'], $opt['projectId'], $opt['projectKey']
-        );
+        $url = $this->buildServerURL($this->opt);
         $data = json_encode($notice);
         $resp = $this->postNotice($url, $data);
         if ($resp['data'] === false) {
@@ -189,5 +186,20 @@ class Notifier
         $notice = $this->buildNotice($exc);
 
         return $this->sendNotice($notice);
+    }
+
+    /**
+     * Builds full URL to the server
+     *
+     * @param array $opt
+     * @param string $type
+     * @return string
+     */
+    protected function buildServerURL(array $opt, $type = 'notices')
+    {
+        return sprintf(
+            '%s://%s/api/v3/projects/%d/%s?key=%s',
+            ($opt['secure'] ? 'https' : 'http'), $opt['host'], $opt['projectId'], $type, $opt['projectKey']
+        );
     }
 }

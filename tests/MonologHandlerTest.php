@@ -35,7 +35,7 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
           'function' => 'Airbrake\Tests\MonologHandlerTest->setUp',
         ], [
           'file' => dirname(dirname(__FILE__)).'/vendor/phpunit/phpunit/src/Framework/TestCase.php',
-          'line' => 742,
+          'line' => 764,
           'function' => 'PHPUnit_Framework_TestCase->runBare',
         ]];
         for ($i = 0; $i < count($wanted); $i++) {
