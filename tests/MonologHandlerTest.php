@@ -16,7 +16,7 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
         $log = new \Monolog\Logger('billing');
         $log->pushHandler(new \Airbrake\MonologHandler($this->notifier));
 
-        $log->addError('charge failed', ['client_id' => 123]);
+        Troublemaker::logAddError($log);
     }
 
     public function testError()
@@ -30,13 +30,13 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
     {
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = [[
-          'file' => __FILE__,
-          'line' => 19,
-          'function' => 'Airbrake\Tests\MonologHandlerTest->setUp',
+          'file' => dirname(__FILE__).'/Troublemaker.php',
+          'line' => 29,
+          'function' => 'Airbrake\Tests\Troublemaker::doLogAddError',
         ], [
-          'file' => dirname(dirname(__FILE__)).'/vendor/phpunit/phpunit/src/Framework/TestCase.php',
-          'line' => 742,
-          'function' => 'PHPUnit_Framework_TestCase->runBare',
+          'file' => dirname(__FILE__).'/Troublemaker.php',
+          'line' => 34,
+          'function' => 'Airbrake\Tests\Troublemaker::logAddError',
         ]];
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($wanted[$i], $backtrace[$i]);

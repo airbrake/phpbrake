@@ -55,6 +55,14 @@ class NotifyTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    public function testPostsNotifier()
+    {
+        $this->assertEquals(
+            'phpbrake',
+            $this->notifier->notice['context']['notifier']['name']
+        );
+    }
+
     public function testPostsURL()
     {
         $this->assertEquals(
