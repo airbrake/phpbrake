@@ -136,7 +136,7 @@ class Notifier
         $respData = file_get_contents($url, false, $context);
 
         return [
-            'headers' => $http_response_header,
+            'headers' => isset($http_response_header) ? $http_response_header : [],
             'data' => $respData,
         ];
     }
