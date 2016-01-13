@@ -22,10 +22,11 @@ class Notifier
      */
     public function __construct($opt = [])
     {
-        // TODO: test that projectId and projectKey exists
-        $this->opt = array_merge($opt, [
+        $this->opt = array_merge([
             'host' => 'api.airbrake.io',
-        ]);
+            'projectKey' => '',
+            'projectId' => ''
+        ], $opt);
     }
 
     /**
