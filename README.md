@@ -98,6 +98,16 @@ $log->pushHandler(new Airbrake\MonologHandler($notifier));
 $log->addError('charge failed', array('client_id' => 123));
 ```
 
+## Customizing the notifier host (for errbit users)
+
+```php
+$notifier = new Airbrake\Notifier([
+    'projectId'  => 12345, // FIX ME
+    'projectKey' => 'abcdefg', // FIX ME
+    'host'       => 'errbit.example.com', // put your errbit host here
+]);
+```
+
 ## Running tests
 
 ```bash
