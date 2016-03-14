@@ -8,6 +8,11 @@ namespace Airbrake;
 class Notifier
 {
     /**
+     * @var string
+     */
+    private $noticesUrl;
+
+    /**
      * @var array
      */
     private $opt;
@@ -171,10 +176,8 @@ class Notifier
             }
         }
 
-        $opt = $this->opt;
-        $url = $this->buildNoticesURL($opt);
         $data = json_encode($notice);
-        $resp = $this->postNotice($url, $data);
+        $resp = $this->postNotice($this->getNoticesURL(), $data);
         if ($resp['data'] === false) {
             return 0;
         }
@@ -202,17 +205,25 @@ class Notifier
     /**
      * Builds notices URL
      *
-     * @param array $opt
      * @return string
      */
-    protected function buildNoticesURL(array $opt)
+    protected function getNoticesURL()
     {
-        $schemeAndHost = $opt['host'];
+        if (!empty($this->noticesUrl)) {
+            return $this->noticesUrl;
+        }
+
+        $schemeAndHost = $this->opt['host'];
 
         if (!preg_match('~^https?://~i', $schemeAndHost)) {
             $schemeAndHost = "https://$schemeAndHost";
         }
 
-        return sprintf('%s/api/v3/projects/%d/notices?key=%s', $schemeAndHost, $opt['projectId'], $opt['projectKey']);
+        return $this->noticesUrl = sprintf(
+            '%s/api/v3/projects/%d/notices?key=%s',
+            $schemeAndHost,
+            $this->opt['projectId'],
+            $this->opt['projectKey']
+        );
     }
 }
