@@ -8,6 +8,11 @@ namespace Airbrake;
 class Notifier
 {
     /**
+     * @var string
+     */
+    private $noticesUrl;
+
+    /**
      * @var array
      */
     private $opt;
@@ -18,14 +23,25 @@ class Notifier
     private $filters = [];
 
     /**
-     * @param array $opt Options such as projectId and projectKey
+     * Constructor
+     *
+     * Available options are:
+     *  - projectId     project id
+     *  - projectKey    project key
+     *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
+     *
+     * @param array $opt the options
+     * @throws \Airbrake\Exception
      */
     public function __construct($opt = [])
     {
-        // TODO: test that projectId and projectKey exists
-        $this->opt = array_merge($opt, [
+        if (empty($opt['projectId']) || empty($opt['projectKey'])) {
+            throw new Exception('both projectId and projectKey are required');
+        }
+
+        $this->opt = array_merge([
             'host' => 'api.airbrake.io',
-        ]);
+        ], $opt);
     }
 
     /**
@@ -160,13 +176,8 @@ class Notifier
             }
         }
 
-        $opt = $this->opt;
-        $url = sprintf(
-            'https://%s/api/v3/projects/%d/notices?key=%s',
-            $opt['host'], $opt['projectId'], $opt['projectKey']
-        );
         $data = json_encode($notice);
-        $resp = $this->postNotice($url, $data);
+        $resp = $this->postNotice($this->getNoticesURL(), $data);
         if ($resp['data'] === false) {
             return 0;
         }
@@ -189,5 +200,30 @@ class Notifier
         $notice = $this->buildNotice($exc);
 
         return $this->sendNotice($notice);
+    }
+
+    /**
+     * Builds notices URL
+     *
+     * @return string
+     */
+    protected function getNoticesURL()
+    {
+        if (!empty($this->noticesUrl)) {
+            return $this->noticesUrl;
+        }
+
+        $schemeAndHost = $this->opt['host'];
+
+        if (!preg_match('~^https?://~i', $schemeAndHost)) {
+            $schemeAndHost = "https://$schemeAndHost";
+        }
+
+        return $this->noticesUrl = sprintf(
+            '%s/api/v3/projects/%d/notices?key=%s',
+            $schemeAndHost,
+            $this->opt['projectId'],
+            $this->opt['projectKey']
+        );
     }
 }

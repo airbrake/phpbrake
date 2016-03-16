@@ -273,3 +273,73 @@ class InternalServerErrorResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('<html>500 Internal Server Error</html>', $this->resp['error']);
     }
 }
+
+class CustomNotifierHostTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider noticesHostExamples
+     */
+    public function testUrlWithCustomHost($opt, $expectedUrl, $comment)
+    {
+        $notifier = new NotifierMock($opt);
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals($expectedUrl, $notifier->url, $comment);
+    }
+
+    public function noticesHostExamples()
+    {
+        $defaultOpt = [
+            'projectId' => 42,
+            'projectKey' => 'api_key',
+        ];
+        return [
+            [
+                $defaultOpt,
+                'https://api.airbrake.io/api/v3/projects/42/notices?key=api_key',
+                'No host given'
+            ],
+            [
+                array_merge($defaultOpt, ['host' => 'errbit.example.com']),
+                'https://errbit.example.com/api/v3/projects/42/notices?key=api_key',
+                'Custom host without scheme'
+            ],
+            [
+                array_merge($defaultOpt, ['host' => 'http://errbit.example.com']),
+                'http://errbit.example.com/api/v3/projects/42/notices?key=api_key',
+                'Custom host with scheme'
+            ],
+            [
+                array_merge($defaultOpt, ['host' => 'ftp://errbit.example.com']),
+                'https://ftp://errbit.example.com/api/v3/projects/42/notices?key=api_key',
+                'Custom host with wrong scheme'
+            ],
+        ];
+    }
+}
+
+class InvalidConstructorOptionsTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException \Airbrake\Exception
+     */
+    public function testEmptyOptions()
+    {
+        new NotifierMock([]);
+    }
+
+    /**
+     * @expectedException \Airbrake\Exception
+     */
+    public function testNoProjectKey()
+    {
+        new NotifierMock(['projectId' => 42]);
+    }
+
+    /**
+     * @expectedException \Airbrake\Exception
+     */
+    public function testNoProjectId()
+    {
+        new NotifierMock(['projectKey' => 'some-key']);
+    }
+}
