@@ -46,6 +46,8 @@ class Notifier
             'host' => 'api.airbrake.io',
             'rootDirectory' => null,
         ], $opt);
+
+        $this->configureDefaultFilters();
     }
 
     /**
@@ -233,5 +235,23 @@ class Notifier
             $this->opt['projectId'],
             $this->opt['projectKey']
         );
+    }
+
+    protected function configureDefaultFilters()
+    {
+        $this->addFilter(function ($notice) {
+            if (!empty($this->opt['rootDirectory']) && !empty($notice['errors'])) {
+                $projectRoot = $this->opt['rootDirectory'];
+                foreach ($notice['errors'] as &$error) {
+                    if (empty($error['backtrace'])) {
+                        continue;
+                    }
+                    foreach ($error['backtrace'] as &$frame) {
+                        $frame['file'] = preg_replace("~^$projectRoot~", '[PROJECT_ROOT]', $frame['file']);
+                    }
+                }
+            }
+            return $notice;
+        });
     }
 }
