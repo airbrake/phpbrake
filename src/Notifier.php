@@ -29,6 +29,9 @@ class Notifier
      *  - projectId     project id
      *  - projectKey    project key
      *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
+     *  - appVersion
+     *  - environment
+     *  - rootDirectory
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -41,6 +44,7 @@ class Notifier
 
         $this->opt = array_merge([
             'host' => 'api.airbrake.io',
+            'rootDirectory' => null,
         ], $opt);
     }
 
@@ -105,9 +109,13 @@ class Notifier
             ],
             'os' => php_uname(),
             'language' => 'php '.phpversion(),
+            'rootDirectory' => $this->opt['rootDirectory'] ?: $_SERVER['DOCUMENT_ROOT'] ?: null,
         ];
-        if ($_SERVER['DOCUMENT_ROOT'] !== '') {
-            $context['rootDir'] = $_SERVER['DOCUMENT_ROOT'];
+        if (!empty($this->opt['appVersion'])) {
+            $context['version'] = $this->opt['appVersion'];
+        }
+        if (!empty($this->opt['environment'])) {
+            $context['environment'] = $this->opt['environment'];
         }
         if (($hostname = gethostname()) !== false) {
             $context['hostname'] = $hostname;
