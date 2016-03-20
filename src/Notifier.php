@@ -44,7 +44,6 @@ class Notifier
 
         $this->opt = array_merge([
             'host' => 'api.airbrake.io',
-            'rootDirectory' => null,
         ], $opt);
 
         $this->configureDefaultFilters();
@@ -111,8 +110,10 @@ class Notifier
             ],
             'os' => php_uname(),
             'language' => 'php '.phpversion(),
-            'rootDirectory' => $this->opt['rootDirectory'] ?: $_SERVER['DOCUMENT_ROOT'] ?: null,
         ];
+        if (!empty($this->opt['rootDirectory'])) {
+            $context['rootDirectory'] = $this->opt['rootDirectory'];
+        }
         if (!empty($this->opt['appVersion'])) {
             $context['version'] = $this->opt['appVersion'];
         }
@@ -240,8 +241,8 @@ class Notifier
     protected function configureDefaultFilters()
     {
         $this->addFilter(function ($notice) {
-            if (!empty($this->opt['rootDirectory']) && !empty($notice['errors'])) {
-                $projectRoot = $this->opt['rootDirectory'];
+            if (!empty($notice['context']['rootDirectory']) && !empty($notice['errors'])) {
+                $projectRoot = $notice['context']['rootDirectory'];
                 foreach ($notice['errors'] as &$error) {
                     if (empty($error['backtrace'])) {
                         continue;
