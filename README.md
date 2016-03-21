@@ -89,6 +89,10 @@ set_exception_handler(array($this, 'onException'));
 register_shutdown_function(array($this, 'onShutdown'));
 ```
 
+## Symfony integration
+
+See https://github.com/aminin/airbrake-bundle
+
 ## Monolog integration
 
 ```php
