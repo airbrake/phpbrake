@@ -46,7 +46,11 @@ class Notifier
             'host' => 'api.airbrake.io',
         ], $opt);
 
-        $this->configureDefaultFilters();
+        if (!empty($opt['rootDirectory'])) {
+            $this->addFilter(function ($notice) {
+                return $this->rootDirectoryFilter($notice);
+            });
+        }
     }
 
     /**
@@ -111,9 +115,6 @@ class Notifier
             'os' => php_uname(),
             'language' => 'php '.phpversion(),
         ];
-        if (!empty($this->opt['rootDirectory'])) {
-            $context['rootDirectory'] = $this->opt['rootDirectory'];
-        }
         if (!empty($this->opt['appVersion'])) {
             $context['version'] = $this->opt['appVersion'];
         }
@@ -238,21 +239,18 @@ class Notifier
         );
     }
 
-    protected function configureDefaultFilters()
+    protected function rootDirectoryFilter($notice)
     {
-        $this->addFilter(function ($notice) {
-            if (!empty($notice['context']['rootDirectory']) && !empty($notice['errors'])) {
-                $projectRoot = $notice['context']['rootDirectory'];
-                foreach ($notice['errors'] as &$error) {
-                    if (empty($error['backtrace'])) {
-                        continue;
-                    }
-                    foreach ($error['backtrace'] as &$frame) {
-                        $frame['file'] = preg_replace("~^$projectRoot~", '[PROJECT_ROOT]', $frame['file']);
-                    }
-                }
+        $projectRoot = $this->opt['rootDirectory'];
+        $notice['context']['rootDirectory'] = $projectRoot;
+        foreach ($notice['errors'] as &$error) {
+            if (empty($error['backtrace'])) {
+                continue;
             }
-            return $notice;
-        });
+            foreach ($error['backtrace'] as &$frame) {
+                $frame['file'] = preg_replace("~^$projectRoot~", '[PROJECT_ROOT]', $frame['file']);
+            }
+        }
+        return $notice;
     }
 }
