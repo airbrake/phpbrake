@@ -29,6 +29,9 @@ class Notifier
      *  - projectId     project id
      *  - projectKey    project key
      *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
+     *  - appVersion
+     *  - environment
+     *  - rootDirectory
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -42,6 +45,8 @@ class Notifier
         $this->opt = array_merge([
             'host' => 'api.airbrake.io',
         ], $opt);
+
+        $this->configureDefaultFilters();
     }
 
     /**
@@ -106,8 +111,14 @@ class Notifier
             'os' => php_uname(),
             'language' => 'php '.phpversion(),
         ];
-        if ($_SERVER['DOCUMENT_ROOT'] !== '') {
-            $context['rootDir'] = $_SERVER['DOCUMENT_ROOT'];
+        if (!empty($this->opt['rootDirectory'])) {
+            $context['rootDirectory'] = $this->opt['rootDirectory'];
+        }
+        if (!empty($this->opt['appVersion'])) {
+            $context['version'] = $this->opt['appVersion'];
+        }
+        if (!empty($this->opt['environment'])) {
+            $context['environment'] = $this->opt['environment'];
         }
         if (($hostname = gethostname()) !== false) {
             $context['hostname'] = $hostname;
@@ -225,5 +236,23 @@ class Notifier
             $this->opt['projectId'],
             $this->opt['projectKey']
         );
+    }
+
+    protected function configureDefaultFilters()
+    {
+        $this->addFilter(function ($notice) {
+            if (!empty($notice['context']['rootDirectory']) && !empty($notice['errors'])) {
+                $projectRoot = $notice['context']['rootDirectory'];
+                foreach ($notice['errors'] as &$error) {
+                    if (empty($error['backtrace'])) {
+                        continue;
+                    }
+                    foreach ($error['backtrace'] as &$frame) {
+                        $frame['file'] = preg_replace("~^$projectRoot~", '[PROJECT_ROOT]', $frame['file']);
+                    }
+                }
+            }
+            return $notice;
+        });
     }
 }

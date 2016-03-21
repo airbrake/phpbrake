@@ -343,3 +343,26 @@ class InvalidConstructorOptionsTest extends PHPUnit_Framework_TestCase
         new NotifierMock(['projectKey' => 'some-key']);
     }
 }
+
+class RootDirectoryOptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testRootDirectoryOption()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 42,
+            'projectKey' => 'api_key',
+            'rootDirectory' => __DIR__,
+        ]);
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals(
+            __DIR__,
+            $notifier->notice['context']['rootDirectory'],
+            'The rootDirectory option is sent in the context'
+        );
+        $this->assertEquals(
+            '[PROJECT_ROOT]/Troublemaker.php',
+            $notifier->notice['errors'][0]['backtrace'][0]['file'],
+            'The root dir is filtered from the backtrace'
+        );
+    }
+}

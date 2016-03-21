@@ -98,13 +98,61 @@ $log->pushHandler(new Airbrake\MonologHandler($notifier));
 $log->addError('charge failed', array('client_id' => 123));
 ```
 
-## Customizing the notifier host (for errbit users)
+## Extra configuration options
+
+### appVersion
+
+The version of your application that you can pass to differentiate exceptions
+between multiple versions. It's not set by default.
 
 ```php
 $notifier = new Airbrake\Notifier([
-    'projectId'  => 12345, // FIX ME
-    'projectKey' => 'abcdefg', // FIX ME
-    'host'       => 'errbit.example.com', // put your errbit host here
+    // ...
+    'appVersion' => '1.2.3',
+    // ...
+]);
+```
+
+### host
+
+By default, it is set to `api.airbrake.io`. A `host` is a web address containing a
+scheme ("http" or "https"), a host and a port. You can omit the port (80 will be
+assumed) and the scheme ("https" will be assumed).
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'host' => 'errbit.example.com', // put your errbit host here
+    // ...
+]);
+```
+
+### rootDirectory
+
+Configures the root directory of your project. Expects a String or a Pathname,
+which represents the path to your project. Providing this option helps us to
+filter out repetitive data from backtrace frames and link to GitHub files
+from our dashboard.
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'rootDirectory' => '/var/www/project',
+    // ...
+]);
+```
+
+### environment
+
+Configures the environment the application is running in. Helps the Airbrake
+dashboard to distinguish between exceptions occurring in different
+environments. By default, it's not set.
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'environment' => 'staging',
+    // ...
 ]);
 ```
 
