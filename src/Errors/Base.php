@@ -18,10 +18,10 @@ class Base
         $frame = array_shift($trace);
         if ($frame != null) {
             if (isset($frame['file'])) {
-                $this->file = $frame['file'];    
+                $this->file = $frame['file'];
             }
             if (isset($frame['line'])) {
-                $this->line = $frame['line'];    
+                $this->line = $frame['line'];
             }
         }
         $this->trace = $trace;
