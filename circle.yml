@@ -1,3 +1,8 @@
 machine:
   php:
     version: 5.4.37
+
+test:
+  override:
+    - phpunit
+    - vendor/bin/phpcs -n -p --encoding=utf-8 --standard=PSR2 --extensions=php ./src/ ./tests/
