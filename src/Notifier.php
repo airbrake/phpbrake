@@ -152,20 +152,17 @@ class Notifier
      */
     protected function postNotice($url, $data)
     {
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/json\r\n",
-                'method' => 'POST',
-                'content' => $data,
-                'ignore_errors' => true,
+        $guzzle = new \GuzzleHttp\Client();
+        $response = $guzzle->request('POST', $url, [
+            'headers' => [
+                'Content-type' => 'application/json',
             ],
-        ];
-        $context = stream_context_create($options);
-        $respData = file_get_contents($url, false, $context);
+            'body' => $data,
+        ]);
 
         return [
-            'headers' => isset($http_response_header) ? $http_response_header : [],
-            'data' => $respData,
+            'headers' => $response->getHeaders(),
+            'data' => (string)$response->getBody(),
         ];
     }
 
