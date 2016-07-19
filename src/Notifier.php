@@ -38,7 +38,7 @@ class Notifier
      *  - appVersion
      *  - environment
      *  - rootDirectory
-     *  - httpClient    Autodetected or one of "default", "curl" or "guzzle"
+     *  - httpClient    which http client to use: "default", "curl" or "guzzle"
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception

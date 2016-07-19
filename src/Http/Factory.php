@@ -19,10 +19,6 @@ class Factory
      */
     public static function createHttpClient($handler = null)
     {
-        if (!$handler) {
-            return self::detectDefaultClient();
-        }
-
         if ($handler === 'guzzle') {
             if (!class_exists('GuzzleHttp\Client')) {
                 throw new Exception('The Guzzle HTTP client must be included in order to use the "guzzle" handler.');
@@ -37,28 +33,10 @@ class Factory
             return new CurlClient();
         }
 
-        if ($handler === 'default') {
+        if (!$handler || $handler === 'default') {
             return new DefaultClient();
         }
 
         throw new InvalidArgumentException('The http client handler must be set to "default", "curl" or "guzzle"');
-    }
-
-    /**
-     * Detect default HTTP client.
-     *
-     * @return ClientInterface
-     */
-    private static function detectDefaultClient()
-    {
-        if (class_exists('GuzzleHttp\Client')) {
-            return new GuzzleClient();
-        }
-
-        if (extension_loaded('curl')) {
-            return new CurlClient();
-        }
-
-        return new DefaultClient();
     }
 }
