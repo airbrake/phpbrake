@@ -23,6 +23,12 @@ class Notifier
     private $filters = [];
 
     /**
+     * Http client
+     * @var Http\ClientInterface
+     */
+    private $client;
+
+    /**
      * Constructor
      *
      * Available options are:
@@ -32,6 +38,7 @@ class Notifier
      *  - appVersion
      *  - environment
      *  - rootDirectory
+     *  - httpClient    which http client to use: "default", "curl" or "guzzle"
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -51,6 +58,9 @@ class Notifier
                 return $this->rootDirectoryFilter($notice);
             });
         }
+
+        $handler = (isset($this->opt['httpClient']) ? $this->opt['httpClient'] : null);
+        $this->client = Http\Factory::createHttpClient($handler);
     }
 
     /**
@@ -78,10 +88,10 @@ class Notifier
         foreach ($trace as $frame) {
             $func = $frame['function'];
             if (isset($frame['class']) && isset($frame['type'])) {
-                $func = $frame['class'].$frame['type'].$func;
+                $func = $frame['class'] . $frame['type'] . $func;
             }
             if (count($backtrace) > 0) {
-                $backtrace[count($backtrace)-1]['function'] = $func;
+                $backtrace[count($backtrace) - 1]['function'] = $func;
             }
 
             $backtrace[] = [
@@ -113,7 +123,7 @@ class Notifier
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
-            'language' => 'php '.phpversion(),
+            'language' => 'php ' . phpversion(),
         ];
         if (!empty($this->opt['appVersion'])) {
             $context['version'] = $this->opt['appVersion'];
@@ -126,7 +136,7 @@ class Notifier
         }
         if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
             $scheme = isset($_SERVER['HTTPS']) ? 'https' : 'http';
-            $context['url'] = $scheme.'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+            $context['url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         }
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $context['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
@@ -152,21 +162,7 @@ class Notifier
      */
     protected function postNotice($url, $data)
     {
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/json\r\n",
-                'method' => 'POST',
-                'content' => $data,
-                'ignore_errors' => true,
-            ],
-        ];
-        $context = stream_context_create($options);
-        $respData = file_get_contents($url, false, $context);
-
-        return [
-            'headers' => isset($http_response_header) ? $http_response_header : [],
-            'data' => $respData,
-        ];
+        return $this->client->send($url, $data);
     }
 
     /**

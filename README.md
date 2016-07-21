@@ -160,6 +160,24 @@ $notifier = new Airbrake\Notifier([
 ]);
 ```
 
+### httpClient
+
+Configures the underlying http client. Expects "guzzle", "curl" or "default".
+- In order to use the "guzzle" client, the composer package "guzzlehttp/guzzle"
+must be installed.
+- Curl needs the curl php extension installed. See phpinfo().
+- The default client uses the php function "file_get_contents". Make sure
+"allow_url_fopen" is set to "1" in your php.ini.
+If not set the default client is used.
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'httpClient' => 'curl',
+    // ...
+]);
+```
+
 ## Running tests
 
 ```bash
