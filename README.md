@@ -12,10 +12,10 @@ composer require airbrake/phpbrake
 
 ```php
 // Create new Notifier instance.
-$notifier = new Airbrake\Notifier(array(
+$notifier = new Airbrake\Notifier([
     'projectId' => 12345, // FIX ME
     'projectKey' => 'abcdefg', // FIX ME
-));
+]);
 
 // Set global notifier instance.
 Airbrake\Instance::set($notifier);
@@ -84,9 +84,9 @@ $handler->register();
 Under the hood `$handler->register` does following:
 
 ```php
-set_error_handler(array($this, 'onError'), error_reporting());
-set_exception_handler(array($this, 'onException'));
-register_shutdown_function(array($this, 'onShutdown'));
+set_error_handler([$this, 'onError'], error_reporting());
+set_exception_handler([$this, 'onException']);
+register_shutdown_function([$this, 'onShutdown']);
 ```
 
 ## Symfony integration
@@ -99,7 +99,7 @@ See https://github.com/aminin/airbrake-bundle
 $log = new Monolog\Logger('billing');
 $log->pushHandler(new Airbrake\MonologHandler($notifier));
 
-$log->addError('charge failed', array('client_id' => 123));
+$log->addError('charge failed', ['client_id' => 123]);
 ```
 
 ## Extra configuration options
