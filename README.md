@@ -34,7 +34,7 @@ try {
 
 ## API
 
-Notifier API constists of 4 methods:
+Notifier API consists of 4 methods:
 - `buildNotice` - builds [Airbrake notice](https://airbrake.io/docs/#create-notice-v3).
 - `sendNotice` - sends notice to Airbrake.
 - `notify` - shortcut for `buildNotice` and `sendNotice`.
@@ -74,7 +74,7 @@ $notifier->addFilter(function ($notice) {
 
 ## Error handler
 
-Notifier can handle PHP errors, uncatched exceptions and shutdown. You can register appropriate handlers using following code:
+Notifier can handle PHP errors, uncaught exceptions and shutdown. You can register appropriate handlers using following code:
 
 ```php
 $handler = new Airbrake\ErrorHandler($notifier);
