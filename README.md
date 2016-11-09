@@ -14,7 +14,7 @@ composer require airbrake/phpbrake
 // Create new Notifier instance.
 $notifier = new Airbrake\Notifier([
     'projectId' => 12345, // FIX ME
-    'projectKey' => 'abcdefg', // FIX ME
+    'projectKey' => 'abcdefg' // FIX ME
 ]);
 
 // Set global notifier instance.
