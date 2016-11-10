@@ -12,10 +12,10 @@ composer require airbrake/phpbrake
 
 ```php
 // Create new Notifier instance.
-$notifier = new Airbrake\Notifier(array(
+$notifier = new Airbrake\Notifier([
     'projectId' => 12345, // FIX ME
-    'projectKey' => 'abcdefg', // FIX ME
-));
+    'projectKey' => 'abcdefg' // FIX ME
+]);
 
 // Set global notifier instance.
 Airbrake\Instance::set($notifier);
@@ -34,7 +34,7 @@ try {
 
 ## API
 
-Notifier API constists of 4 methods:
+Notifier API consists of 4 methods:
 - `buildNotice` - builds [Airbrake notice](https://airbrake.io/docs/#create-notice-v3).
 - `sendNotice` - sends notice to Airbrake.
 - `notify` - shortcut for `buildNotice` and `sendNotice`.
@@ -74,7 +74,7 @@ $notifier->addFilter(function ($notice) {
 
 ## Error handler
 
-Notifier can handle PHP errors, uncatched exceptions and shutdown. You can register appropriate handlers using following code:
+Notifier can handle PHP errors, uncaught exceptions and shutdown. You can register appropriate handlers using following code:
 
 ```php
 $handler = new Airbrake\ErrorHandler($notifier);
@@ -84,9 +84,9 @@ $handler->register();
 Under the hood `$handler->register` does following:
 
 ```php
-set_error_handler(array($this, 'onError'), error_reporting());
-set_exception_handler(array($this, 'onException'));
-register_shutdown_function(array($this, 'onShutdown'));
+set_error_handler([$this, 'onError'], error_reporting());
+set_exception_handler([$this, 'onException']);
+register_shutdown_function([$this, 'onShutdown']);
 ```
 
 ## Symfony integration
@@ -99,7 +99,7 @@ See https://github.com/aminin/airbrake-bundle
 $log = new Monolog\Logger('billing');
 $log->pushHandler(new Airbrake\MonologHandler($notifier));
 
-$log->addError('charge failed', array('client_id' => 123));
+$log->addError('charge failed', ['client_id' => 123]);
 ```
 
 ## Extra configuration options
