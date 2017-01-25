@@ -33,8 +33,8 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
         $trace = array_slice(debug_backtrace(), 3);
         $exc = new Errors\Base($record['message'], $trace);
         $notice = $this->notifier->buildNotice($exc);
-        $type = $record['channel'].'.'.$record['level_name'];
-        $notice['errors'][0]['type'] = $type;
+        $notice['errors'][0]['type'] = $record['channel'].'.'.$record['level_name'];
+        $notice['context']['severity'] = $record['level_name'];
         if (!empty($record['context'])) {
             $notice['params']['monolog_context'] = $record['context'];
         }
