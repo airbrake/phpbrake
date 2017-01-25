@@ -26,6 +26,11 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('charge failed', $error['message']);
     }
 
+    public function testSeverity()
+    {
+        $this->assertEquals('ERROR', $this->notifier->notice['context']['severity']);
+    }
+
     public function testBacktrace()
     {
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
