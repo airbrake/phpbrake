@@ -106,7 +106,7 @@ class Notifier
     /**
      * Builds Airbrake notice from exception.
      *
-     * @param \Throwable $exc Exception or class that implements similar interface.
+     * @param \Throwable|\Exception $exc Exception or class that implements similar interface.
      */
     public function buildNotice($exc)
     {
@@ -201,7 +201,7 @@ class Notifier
      *
      * Under the hood notify is a shortcut for buildNotice and sendNotice.
      *
-     * @param \Throwable $exc Exception or class that implements similar interface.
+     * @param \Throwable|\Exception $exc Exception or class that implements similar interface.
      */
     public function notify($exc)
     {
