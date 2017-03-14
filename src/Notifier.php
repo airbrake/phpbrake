@@ -145,7 +145,6 @@ class Notifier
         $notice = [
             'errors' => [$error],
             'context' => $context,
-            'environment' => $_SERVER,
         ];
         if (!empty($_REQUEST)) {
             $notice['params'] = $_REQUEST;
