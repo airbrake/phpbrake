@@ -88,13 +88,18 @@ set_error_handler([$this, 'onError'], error_reporting());
 set_exception_handler([$this, 'onException']);
 register_shutdown_function([$this, 'onShutdown']);
 ```
-## CakePHP 3.x integration
 
-See https://gist.github.com/mauriciovillalobos/01a97f9ee6179ad70b17d54f37cc5010
+## Laravel integration
+
+See https://github.com/TheoKouzelis/laravel-airbrake
 
 ## Symfony integration
 
 See https://github.com/aminin/airbrake-bundle
+
+## CakePHP 3.x integration
+
+See https://gist.github.com/mauriciovillalobos/01a97f9ee6179ad70b17d54f37cc5010
 
 ## Monolog integration
 
