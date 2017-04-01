@@ -196,7 +196,7 @@ vendor/bin/phpunit
 ## PHPDoc
 ```bash
 composer require phpdocumentor/phpdocumentor
-bin/phpdoc -d src
+vendor/bin/phpdoc -d src
 firefox output/index.html
 ```
 
