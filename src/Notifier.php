@@ -124,6 +124,7 @@ class Notifier
             ],
             'os' => php_uname(),
             'language' => 'php ' . phpversion(),
+            'severity' => 'error',
         ];
         if (!empty($this->opt['appVersion'])) {
             $context['version'] = $this->opt['appVersion'];
