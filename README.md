@@ -72,6 +72,19 @@ $notifier->addFilter(function ($notice) {
 });
 ```
 
+## Setting severity
+
+[Severity](https://airbrake.io/docs/airbrake-faq/what-is-severity/) allows
+categorizing how severe an error is. By default, it's set to `error`. To
+redefine severity, simply overwrite `context/severity` of a notice object. For
+example:
+
+```php
+$notice = $notifier->buildNotice($e);
+$notice['context']['severity'] = 'critical';
+$notifier->sendNotice($notice);
+```
+
 ## Error handler
 
 Notifier can handle PHP errors, uncaught exceptions and shutdown. You can register appropriate handlers using following code:
