@@ -38,7 +38,8 @@ class Notifier
      *  - appVersion
      *  - environment
      *  - rootDirectory
-     *  - httpClient    which http client to use: "default", "curl" or "guzzle"
+     *  - httpClient    which http client to use: "default", "curl", "guzzle" or a client instance
+     *                  implementing Http\ClientInterface
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -51,6 +52,7 @@ class Notifier
 
         $this->opt = array_merge([
             'host' => 'api.airbrake.io',
+            'httpClient' => null,
         ], $opt);
 
         if (!empty($opt['rootDirectory'])) {
@@ -59,8 +61,9 @@ class Notifier
             });
         }
 
-        $handler = (isset($this->opt['httpClient']) ? $this->opt['httpClient'] : null);
-        $this->client = Http\Factory::createHttpClient($handler);
+        $this->client = $this->opt['httpClient'] instanceof Http\ClientInterface
+            ? $this->opt['httpClient']
+            : Http\Factory::createHttpClient($this->opt['httpClient']);
     }
 
     /**
