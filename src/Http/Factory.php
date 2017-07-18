@@ -34,6 +34,9 @@ class Factory
         }
 
         if (!$handler || $handler === 'default') {
+            if (!ini_get('allow_url_fopen')) {
+                throw new Exception('The default HTTP client requires allow_url_fopen = true');
+            }
             return new DefaultClient();
         }
 
