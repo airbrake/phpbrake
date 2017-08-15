@@ -114,6 +114,10 @@ See https://github.com/aminin/airbrake-bundle
 
 See https://gist.github.com/mauriciovillalobos/01a97f9ee6179ad70b17d54f37cc5010
 
+## Zend Framework integration
+
+See https://github.com/FrankHouweling/zend-airbrake
+
 ## Monolog integration
 
 ```php
