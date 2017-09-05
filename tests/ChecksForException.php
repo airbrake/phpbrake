@@ -60,14 +60,5 @@ trait ChecksForException
         );
     }
 
-    /** @dataProvider exceptionProvider */
-    public function testSeverity($notifier)
-    {
-        $this->assertEquals(
-            'error',
-            $notifier->notice['context']['severity']
-        );
-    }
-
     abstract public function exceptionProvider();
 }
