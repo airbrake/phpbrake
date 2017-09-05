@@ -6,14 +6,18 @@ use Airbrake\Notifier;
 
 class NotifierMock extends Notifier
 {
-    public $resp = [
-        'headers' => 'HTTP/1.1 201 Created',
-        'data' => '{"id":"12345"}',
-    ];
-
     public $url;
     public $data;
     public $notice;
+
+    public $resp;
+
+    public function __construct($opt)
+    {
+        parent::__construct($opt);
+        $this->resp = new ResponseMock(201, '{"id":"12345"}');
+        ;
+    }
 
     public function postNotice($url, $data)
     {
