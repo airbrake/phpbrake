@@ -1,7 +1,10 @@
 Phpbrake Changelog
 ==================
 
-### master
+### [v0.4.0][v0.4.0] (Sep 7, 2017)
+
+* SendNotice returns notice with id and error keys set.
+* Guzzle is now the only built-in HTTP client.
 
 ### [v0.2.4][v0.2.4] (May 11, 2017)
 
