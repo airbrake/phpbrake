@@ -18,3 +18,4 @@ Phpbrake Changelog
 
 [v0.2.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.2.0
 [v0.2.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.2.4
+[v0.4.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.4.0
