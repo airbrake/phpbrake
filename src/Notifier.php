@@ -205,10 +205,13 @@ class Notifier
 
         $data = json_encode($notice);
         $resp = $this->postNotice($this->noticesURL, $data);
-
         $statusCode = $resp->getStatusCode();
+
         if ($statusCode == self::HTTP_STATUS_TOO_MANY_REQUESTS) {
-            $reset = intval($resp->getHeader('X-RateLimit-Reset'));
+            $h = $resp->getHeader('X-RateLimit-Delay');
+            if (count($h) > 0) {
+                $this->rateLimitReset = time() + intval($h[0]);
+            }
             $notice['error'] = self::ERR_IP_RATE_LIMITED;
             return $notice;
         }
@@ -236,10 +239,11 @@ class Notifier
     protected function postNotice($url, $data)
     {
         return $this->httpClient->request('POST', $url, [
-        'headers' => [
-        'Content-type' => 'application/json',
-        ],
-        'body' => $data,
+            'headers' => [
+                'Content-type' => 'application/json',
+            ],
+            'body' => $data,
+            'http_errors' => false,
         ]);
     }
 
