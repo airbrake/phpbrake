@@ -3,56 +3,62 @@
 namespace Airbrake;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Promise;
+
+define('HTTP_STATUS_UNAUTHORIZED', 401);
+define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
+
+define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
+define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 
 /**
  * Airbrake exception notifier.
  */
 class Notifier
 {
-    const HTTP_STATUS_TOO_MANY_REQUESTS = 429;
-    const ERR_IP_RATE_LIMITED = 'phpbrake: IP is rate limited';
+    private static $count = 0;
 
-  /**
-   * @var string
-   */
-    private $noticesURL;
+    /**
+     * @var string
+     */
+    protected $noticesURL;
 
-  /**
-   * @var array
-   */
+    /**
+     * @var array
+     */
     private $opt;
 
-  /**
-   * @var callable[]
-   */
+    /**
+     * @var callable[]
+     */
     private $filters = [];
 
-  /**
-   * Http client
-   * @var GuzzleHttp\ClientInterface
-   */
+    /**
+     * Http client
+     * @var GuzzleHttp\ClientInterface
+     */
     private $httpClient;
 
-  /**
-   * @var number
-   */
+    /**
+     * @var number
+     */
     private $rateLimitReset;
 
-  /**
-   * Constructor
-   *
-   * Available options are:
-   *  - projectId     project id
-   *  - projectKey    project key
-   *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
-   *  - appVersion
-   *  - environment
-   *  - rootDirectory
-   *  - httpClient    http client implementing GuzzleHttp\ClientInterface
-   *
-   * @param array $opt the options
-   * @throws \Airbrake\Exception
-   */
+    /**
+     * Constructor
+     *
+     * Available options are:
+     *  - projectId     project id
+     *  - projectKey    project key
+     *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
+     *  - appVersion
+     *  - environment
+     *  - rootDirectory
+     *  - httpClient    http client implementing GuzzleHttp\ClientInterface
+     *
+     * @param array $opt the options
+     * @throws \Airbrake\Exception
+     */
     public function __construct($opt)
     {
         if (empty($opt['projectId']) || empty($opt['projectKey'])) {
@@ -60,8 +66,7 @@ class Notifier
         }
 
         $this->opt = array_merge([
-        'host' => 'api.airbrake.io',
-        'httpClient' => null,
+          'host' => 'api.airbrake.io',
         ], $opt);
 
         if (!empty($opt['rootDirectory'])) {
@@ -72,6 +77,11 @@ class Notifier
 
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
+
+        if (self::$count === 0) {
+            Instance::set($this);
+        }
+        self::$count++;
     }
 
     private function newHTTPClient()
@@ -82,17 +92,17 @@ class Notifier
             }
             throw new Exception('phpbrake: httpClient must implement GuzzleHttp\ClientInterface');
         }
-        return new Client();
+        return new Client(['timeout' => 5]);
     }
 
-  /**
-   * Appends filter to the list.
-   *
-   * Filter is a callback that accepts notice. Filter can modify passed
-   * notice or return null if notice must be ignored.
-   *
-   * @param callable $filter Filter callback
-   */
+    /**
+     * Appends filter to the list.
+     *
+     * Filter is a callback that accepts notice. Filter can modify passed
+     * notice or return null if notice must be ignored.
+     *
+     * @param callable $filter Filter callback
+     */
     public function addFilter($filter)
     {
         $this->filters[] = $filter;
@@ -102,9 +112,9 @@ class Notifier
     {
         $backtrace = [];
         $backtrace[] = [
-        'file' => $exc->getFile(),
-        'line' => $exc->getLine(),
-        'function' => '',
+            'file' => $exc->getFile(),
+            'line' => $exc->getLine(),
+            'function' => ''
         ];
         $trace = $exc->getTrace();
         foreach ($trace as $frame) {
@@ -117,35 +127,36 @@ class Notifier
             }
 
             $backtrace[] = [
-            'file' => isset($frame['file']) ? $frame['file'] : '',
-            'line' => isset($frame['line']) ? $frame['line'] : 0,
-            'function' => '',
+                'file' => isset($frame['file']) ? $frame['file'] : '',
+                'line' => isset($frame['line']) ? $frame['line'] : 0,
+                'function' => ''
             ];
         }
         return $backtrace;
     }
 
-  /**
-   * Builds Airbrake notice from exception.
-   *
-   * @param \Throwable|\Exception $exc Exception or class that implements similar interface.
-   */
+    /**
+     * Builds Airbrake notice from exception.
+     *
+     * @param \Throwable|\Exception $exc Exception or class that implements similar interface.
+     * @return array Airbrake notice
+     */
     public function buildNotice($exc)
     {
         $error = [
-        'type' => get_class($exc),
-        'message' => $exc->getMessage(),
-        'backtrace' => $this->backtrace($exc),
+            'type' => get_class($exc),
+            'message' => $exc->getMessage(),
+            'backtrace' => $this->backtrace($exc)
         ];
 
         $context = [
-        'notifier' => [
-        'name' => 'phpbrake',
-        'version' => '0.4.0',
-        'url' => 'https://github.com/airbrake/phpbrake',
-        ],
-        'os' => php_uname(),
-        'language' => 'php ' . phpversion(),
+            'notifier' => [
+                'name' => 'phpbrake',
+                'version' => '0.4.0',
+                'url' => 'https://github.com/airbrake/phpbrake',
+            ],
+            'os' => php_uname(),
+            'language' => 'php ' . phpversion(),
         ];
         if (!empty($this->opt['appVersion'])) {
             $context['version'] = $this->opt['appVersion'];
@@ -165,8 +176,8 @@ class Notifier
         }
 
         $notice = [
-        'errors' => [$error],
-        'context' => $context,
+            'errors' => [$error],
+            'context' => $context,
         ];
         if (!empty($_REQUEST)) {
             $notice['params'] = $_REQUEST;
@@ -178,16 +189,34 @@ class Notifier
         return $notice;
     }
 
-  /**
-   * Sends notice to Airbrake.
-   *
-   * It returns notice with 2 possible new keys:
-   * - ['id' => '12345'] - notice id on success.
-   * - ['error' => 'error message'] - error message on failure.
-   *
-   * @param array $notice Airbrake notice
-   */
+    /**
+     * Sends notice to Airbrake.
+     *
+     * It returns notice with 2 possible new keys:
+     * - ['id' => '12345'] - notice id on success.
+     * - ['error' => 'error message'] - error message on failure.
+     *
+     * @param array $notice Airbrake notice
+     * @return array Airbrake notice
+     */
     public function sendNotice($notice)
+    {
+        $notice = $this->filterNotice($notice);
+        if (isset($notice['error'])) {
+            return $notice;
+        }
+
+        if (time() < $this->rateLimitReset) {
+            $notice['error'] = ERR_IP_RATE_LIMITED;
+            return $notice;
+        }
+
+        $req = $this->newHttpRequest($notice);
+        $resp = $this->sendRequest($req);
+        return $this->processHttpResponse($notice, $resp);
+    }
+
+    protected function filterNotice($notice)
     {
         foreach ($this->filters as $filter) {
             $r = $filter($notice);
@@ -197,22 +226,38 @@ class Notifier
             }
             $notice = $r;
         }
+        return $notice;
+    }
 
-        if (time() < $this->rateLimitReset) {
-            $notice['error'] = self::ERR_IP_RATE_LIMITED;
+    protected function newHttpRequest($notice)
+    {
+        $headers = [
+            'Content-type' => 'application/json',
+        ];
+        $body = json_encode($notice);
+        return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
+    }
+
+    protected function sendRequest($req)
+    {
+        return $this->httpClient->send($req, ['http_errors' => false]);
+    }
+
+    protected function processHttpResponse($notice, $resp)
+    {
+        $statusCode = $resp->getStatusCode();
+
+        if ($statusCode == HTTP_STATUS_UNAUTHORIZED) {
+            $notice['error'] = ERR_UNAUTHORIZED;
             return $notice;
         }
 
-        $data = json_encode($notice);
-        $resp = $this->postNotice($this->noticesURL, $data);
-        $statusCode = $resp->getStatusCode();
-
-        if ($statusCode == self::HTTP_STATUS_TOO_MANY_REQUESTS) {
+        if ($statusCode == HTTP_STATUS_TOO_MANY_REQUESTS) {
             $h = $resp->getHeader('X-RateLimit-Delay');
             if (count($h) > 0) {
                 $this->rateLimitReset = time() + intval($h[0]);
             }
-            $notice['error'] = self::ERR_IP_RATE_LIMITED;
+            $notice['error'] = ERR_IP_RATE_LIMITED;
             return $notice;
         }
 
@@ -233,38 +278,81 @@ class Notifier
         return $notice;
     }
 
-  /**
-   * Posts data to the URL.
-   */
-    protected function postNotice($url, $data)
-    {
-        return $this->httpClient->request('POST', $url, [
-            'headers' => [
-                'Content-type' => 'application/json',
-            ],
-            'body' => $data,
-            'http_errors' => false,
-        ]);
-    }
-
-  /**
-   * Notifies Airbrake about exception.
-   *
-   * Under the hood notify is a shortcut for buildNotice and sendNotice.
-   *
-   * @param \Throwable|\Exception $exc Exception or class that implements similar interface.
-   */
+    /**
+     * Notifies Airbrake about exception.
+     *
+     * Under the hood notify is a shortcut for buildNotice and sendNotice.
+     *
+     * @param \Throwable|\Exception $exc Error to be reported to Airbrake.
+     * @return array Airbrake notice
+     */
     public function notify($exc)
     {
         $notice = $this->buildNotice($exc);
         return $this->sendNotice($notice);
     }
 
-  /**
-   * Builds notices URL
-   *
-   * @return string
-   */
+    /**
+     * @param \Throwable|\Exception $exc Error to be reported to Airbrake.
+     * @return GuzzleHttp\Promise\PromiseInterface Promise resolved with $notice
+     * or rejected with $notice['error'].
+     */
+    public function notifyAsync($exc)
+    {
+        $notice = $this->buildNotice($exc);
+        return $this->sendNoticeAsync($notice);
+    }
+
+    /**
+     * @return GuzzleHttp\Promise\PromiseInterface Promise resolved with $notice
+     * or rejected with $notice['error'].
+     */
+    public function sendNoticeAsync($notice)
+    {
+        $notice = $this->filterNotice($notice);
+        if (isset($notice['error'])) {
+            return $notice;
+        }
+
+        if (time() < $this->rateLimitReset) {
+            $notice['error'] = ERR_IP_RATE_LIMITED;
+            return $notice;
+        }
+
+        $req = $this->newHttpRequest($notice);
+        $sendPromise = $this->sendRequestAsync($req);
+
+        $promise = new Promise(function () use (&$sendPromise) {
+            $sendPromise->wait();
+        }, function () use (&$sendPromise) {
+            $sendPromise->cancel();
+        });
+
+        $sendPromise->then(function ($resp) use (&$promise, &$notice) {
+            $notice = $this->processHttpResponse($notice, $resp);
+            if (isset($notice['error'])) {
+                $promise->reject($notice['error']);
+            } else {
+                $promise->resolve($notice);
+            }
+        }, function ($reason) use (&$notice) {
+            $notice['error'] = $reason;
+            $promise->reject($reason);
+        });
+
+        return $promise;
+    }
+
+    protected function sendRequestAsync($req)
+    {
+        return $this->httpClient->sendAsync($req, ['http_errors' => false]);
+    }
+
+    /**
+     * Builds notices URL.
+     *
+     * @return string
+     */
     protected function buildNoticesURL()
     {
         $schemeAndHost = $this->opt['host'];

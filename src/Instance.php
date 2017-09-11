@@ -45,4 +45,20 @@ class Instance
     {
         return self::$notifier->notify($exc);
     }
+
+    /**
+     * Alias for Notifier::sendNotice.
+     */
+    public static function sendNoticeAsync($notice)
+    {
+        return self::$notifier->sendNoticeAsync($notice);
+    }
+
+    /**
+     * Alias for Notifier::notifyAsync.
+     */
+    public static function notifyAsync($exc)
+    {
+        return self::$notifier->notifyAsync($exc);
+    }
 }
