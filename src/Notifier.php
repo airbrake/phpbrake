@@ -153,6 +153,10 @@ class Notifier
             'backtrace' => $this->backtrace($exc)
         ];
 
+        if (empty($error['message'])) {
+            $error['message'] = 'empty';
+        }
+
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
