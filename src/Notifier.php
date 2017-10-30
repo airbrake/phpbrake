@@ -16,7 +16,7 @@ define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
  */
 class Notifier
 {
-    private static $count = 0;
+    private static $instanceCount = 0;
 
     /**
      * @var string
@@ -40,9 +40,11 @@ class Notifier
     private $httpClient;
 
     /**
-     * @var number
+     * @var int
      */
     private $rateLimitReset;
+
+    private $codeHunk;
 
     /**
      * Constructor
@@ -77,11 +79,12 @@ class Notifier
 
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
+        $this->codeHunk = new CodeHunk();
 
-        if (self::$count === 0) {
+        if (self::$instanceCount === 0) {
             Instance::set($this);
         }
-        self::$count++;
+        self::$instanceCount++;
     }
 
     private function newHTTPClient()
@@ -107,7 +110,7 @@ class Notifier
      *
      * @param callable $filter Filter callback
      */
-    public function addFilter($filter)
+    public function addFilter(callable $filter)
     {
         $this->filters[] = $filter;
     }
@@ -115,11 +118,12 @@ class Notifier
     private function backtrace($exc)
     {
         $backtrace = [];
-        $backtrace[] = [
+        $backtrace[] = $this->populateCode([
             'file' => $exc->getFile(),
             'line' => $exc->getLine(),
             'function' => ''
-        ];
+        ]);
+
         $trace = $exc->getTrace();
         foreach ($trace as $frame) {
             $func = $frame['function'];
@@ -130,13 +134,28 @@ class Notifier
                 $backtrace[count($backtrace) - 1]['function'] = $func;
             }
 
-            $backtrace[] = [
+            $backtrace[] = $this->populateCode([
                 'file' => isset($frame['file']) ? $frame['file'] : '',
                 'line' => isset($frame['line']) ? $frame['line'] : 0,
                 'function' => ''
-            ];
+            ]);
         }
+
         return $backtrace;
+    }
+
+    private function populateCode(array $frame)
+    {
+        if (!$frame['file'] || !$frame['line']) {
+            return $frame;
+        }
+
+        $code = $this->codeHunk->get($frame['file'], $frame['line']);
+        if ($code !== null) {
+            $frame['code'] = $code;
+        }
+
+        return $frame;
     }
 
     /**

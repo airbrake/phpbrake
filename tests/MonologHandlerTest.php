@@ -35,13 +35,27 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
     {
         $backtrace = $this->notifier->notice['errors'][0]['backtrace'];
         $wanted = [[
-          'file' => dirname(__FILE__).'/Troublemaker.php',
-          'line' => 29,
-          'function' => 'Airbrake\Tests\Troublemaker::doLogAddError',
+            'file' => dirname(__FILE__).'/Troublemaker.php',
+            'line' => 29,
+            'function' => 'Airbrake\Tests\Troublemaker::doLogAddError',
+            'code' => [
+                27 => '    private static function doLogAddError($log)',
+                28 => '    {',
+                29 => "        \$log->addError('charge failed', ['client_id' => 123]);",
+                30 => '    }',
+                31 => '',
+            ],
         ], [
-          'file' => dirname(__FILE__).'/Troublemaker.php',
-          'line' => 34,
-          'function' => 'Airbrake\Tests\Troublemaker::logAddError',
+            'file' => dirname(__FILE__).'/Troublemaker.php',
+            'line' => 34,
+            'function' => 'Airbrake\Tests\Troublemaker::logAddError',
+            'code' => [
+                32 => '    public static function logAddError($log)',
+                33 => '    {',
+                34 => '        self::doLogAddError($log);',
+                35 => '    }',
+                36 => '}',
+            ],
         ]];
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($wanted[$i], $backtrace[$i]);
