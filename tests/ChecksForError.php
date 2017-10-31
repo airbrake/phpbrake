@@ -23,10 +23,24 @@ trait ChecksForError
             'file' => dirname(dirname(__FILE__)).'/tests/Troublemaker.php',
             'line' => 9,
             'function' => 'Airbrake\Tests\Troublemaker::doEchoUndefinedVar',
+            'code' => [
+                7 => '    private static function doEchoUndefinedVar()',
+                8 => '    {',
+                9 => '        echo $undefinedVar;',
+                10 => '    }',
+                11 => '',
+            ],
         ], [
             'file' => dirname(dirname(__FILE__)).'/tests/Troublemaker.php',
             'line' => 14,
             'function' => 'Airbrake\Tests\Troublemaker::echoUndefinedVar',
+            'code' => [
+                12 => '    public static function echoUndefinedVar()',
+                13 => '    {',
+                14 => '        self::doEchoUndefinedVar();',
+                15 => '    }',
+                16 => '',
+            ],
         ]];
         for ($i = 0; $i < count($wanted); $i++) {
             $this->assertEquals($wanted[$i], $backtrace[$i]);
