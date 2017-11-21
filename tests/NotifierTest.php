@@ -64,19 +64,19 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         ];
         return [[
             $defaultOpt,
-            'https://api.airbrake.io/api/v3/projects/42/notices?key=api_key',
+            'https://api.airbrake.io/api/v3/projects/42/notices',
             'No host given'
         ], [
             array_merge($defaultOpt, ['host' => 'errbit.example.com']),
-            'https://errbit.example.com/api/v3/projects/42/notices?key=api_key',
+            'https://errbit.example.com/api/v3/projects/42/notices',
             'Custom host without scheme'
         ], [
             array_merge($defaultOpt, ['host' => 'http://errbit.example.com']),
-            'http://errbit.example.com/api/v3/projects/42/notices?key=api_key',
+            'http://errbit.example.com/api/v3/projects/42/notices',
             'Custom host with scheme'
         ], [
             array_merge($defaultOpt, ['host' => 'ftp://errbit.example.com']),
-            'https://ftp//errbit.example.com/api/v3/projects/42/notices?key=api_key',
+            'https://ftp//errbit.example.com/api/v3/projects/42/notices',
             'Custom host with wrong scheme'
         ]];
     }

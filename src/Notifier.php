@@ -256,6 +256,7 @@ class Notifier
     {
         $headers = [
             'Content-type' => 'application/json',
+            'Authorization' => 'Bearer ' . $this->opt['projectKey'],
         ];
         $body = json_encode($notice);
         return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
@@ -383,10 +384,9 @@ class Notifier
             $schemeAndHost = "https://$schemeAndHost";
         }
         return sprintf(
-            '%s/api/v3/projects/%d/notices?key=%s',
+            '%s/api/v3/projects/%d/notices',
             $schemeAndHost,
-            $this->opt['projectId'],
-            $this->opt['projectKey']
+            $this->opt['projectId']
         );
     }
 
