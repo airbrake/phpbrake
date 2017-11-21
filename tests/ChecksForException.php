@@ -69,7 +69,7 @@ trait ChecksForException
     public function testPostsToURL($notifier)
     {
         $this->assertEquals(
-            'https://api.airbrake.io/api/v3/projects/1/notices?key=api_key',
+            'https://api.airbrake.io/api/v3/projects/1/notices',
             $notifier->url
         );
     }
