@@ -47,10 +47,10 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
 
     private function arrangeOnErrorNotifier()
     {
-        $er = error_reporting(E_ALL | E_STRICT);
+        $saved = error_reporting(E_ALL | E_STRICT);
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         Troublemaker::echoUndefinedVar();
-        error_reporting($er);
+        error_reporting($saved);
 
         return $notifier;
     }

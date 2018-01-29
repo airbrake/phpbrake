@@ -118,26 +118,41 @@ class Notifier
     private function backtrace($exc)
     {
         $backtrace = [];
-        $backtrace[] = $this->populateCode([
-            'file' => $exc->getFile(),
-            'line' => $exc->getLine(),
-            'function' => ''
-        ]);
+
+        if ($exc->getFile() !== '' && $exc->getLine() !== 0) {
+            $backtrace[] = $this->populateCode([
+                'file' => $exc->getFile(),
+                'line' => $exc->getLine(),
+                'function' => ''
+            ]);
+        }
 
         $trace = $exc->getTrace();
+        $count = count($trace);
+        if ($count === 0) {
+            return $backtrace;
+        }
+        $pushFunc = isset($trace[$count-1]['function']);
+
         foreach ($trace as $frame) {
-            $func = $frame['function'];
+            $func = '';
+            if (isset($frame['function'])) {
+                $func = $frame['function'];
+            }
             if (isset($frame['class']) && isset($frame['type'])) {
                 $func = $frame['class'] . $frame['type'] . $func;
             }
-            if (count($backtrace) > 0) {
-                $backtrace[count($backtrace) - 1]['function'] = $func;
+
+            $count = count($backtrace);
+            if ($pushFunc && $count > 0) {
+                $backtrace[$count-1]['function'] = $func;
+                $func = '';
             }
 
             $backtrace[] = $this->populateCode([
                 'file' => isset($frame['file']) ? $frame['file'] : '',
                 'line' => isset($frame['line']) ? $frame['line'] : 0,
-                'function' => ''
+                'function' => $func
             ]);
         }
 
@@ -175,7 +190,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.5.0',
+                'version' => '0.5.1',
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
