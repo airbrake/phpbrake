@@ -8,22 +8,11 @@ namespace Airbrake\Errors;
 class Base
 {
     private $message;
-    private $file;
-    private $line;
     private $trace;
 
     public function __construct($message, $trace = [])
     {
         $this->message = $message;
-        $frame = array_shift($trace);
-        if ($frame != null) {
-            if (isset($frame['file'])) {
-                $this->file = $frame['file'];
-            }
-            if (isset($frame['line'])) {
-                $this->line = $frame['line'];
-            }
-        }
         $this->trace = $trace;
     }
 
@@ -34,12 +23,12 @@ class Base
 
     public function getFile()
     {
-        return $this->file;
+        return '';
     }
 
     public function getLine()
     {
-        return $this->line;
+        return 0;
     }
 
     public function getTrace()
