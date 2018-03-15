@@ -57,7 +57,7 @@ trait ChecksForException
     }
 
     /** @dataProvider exceptionProvider */
-    public function testPostsURL($notifier)
+    public function testContextURL($notifier)
     {
         $this->assertEquals(
             'http://airbrake.io/hello',
