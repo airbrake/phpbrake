@@ -8,12 +8,17 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 {
     use ChecksForException;
 
-    public function exceptionProvider()
+    public function newNotifier()
     {
-        $notifier = new NotifierMock([
+        return new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
         ]);
+    }
+
+    public function exceptionProvider()
+    {
+        $notifier = $this->newNotifier();
         $_SERVER['HTTP_HOST'] = 'airbrake.io';
         $_SERVER['REQUEST_URI'] = '/hello';
         $notifier->notify(Troublemaker::newException());
@@ -23,20 +28,14 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testNotify()
     {
-        $notifier = new NotifierMock([
-            'projectId' => 1,
-            'projectKey' => 'api_key',
-        ]);
+        $notifier = $this->newNotifier();
         $resp = $notifier->notify(Troublemaker::newException());
         $this->assertEquals('12345', $resp['id']);
     }
 
     public function testNotifyAsync()
     {
-        $notifier = new NotifierMock([
-            'projectId' => 1,
-            'projectKey' => 'api_key',
-        ]);
+        $notifier = $this->newNotifier();
         $promise = $notifier->notifyAsync(Troublemaker::newException());
         $notice = null;
         $promise->then(function ($r) use (&$notice) {
@@ -148,5 +147,29 @@ class NotifierTest extends PHPUnit_Framework_TestCase
             [$notice400, 'dummy error'],
             [$notice500, '<html>500 Internal Server Error</html>'],
         ];
+    }
+
+    public function testContextUserAddr()
+    {
+        $notifier = $this->newNotifier();
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $notifier->notify(Troublemaker::newException());
+
+        $this->assertEquals(
+            '127.0.0.1',
+            $notifier->notice['context']['userAddr']
+        );
+    }
+
+    public function testContextUserAddrXForwardedFor()
+    {
+        $notifier = $this->newNotifier();
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '1.1.1.1, 2.2.2.2';
+        $notifier->notify(Troublemaker::newException());
+
+        $this->assertEquals(
+            '2.2.2.2',
+            $notifier->notice['context']['userAddr']
+        );
     }
 }

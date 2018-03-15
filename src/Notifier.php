@@ -212,6 +212,12 @@ class Notifier
         if (isset($_SERVER['HTTP_USER_AGENT'])) {
             $context['userAgent'] = $_SERVER['HTTP_USER_AGENT'];
         }
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            $context['userAddr'] = trim(array_pop($ips));
+        } else if (isset($_SERVER['REMOTE_ADDR'])) {
+            $context['userAddr'] = $_SERVER['REMOTE_ADDR'];
+        }
 
         $notice = [
             'errors' => [$error],
