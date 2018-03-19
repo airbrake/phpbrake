@@ -118,7 +118,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
             'The rootDirectory option is sent in the context'
         );
         $this->assertEquals(
-            '[PROJECT_ROOT]/Troublemaker.php',
+            '/PROJECT_ROOT/Troublemaker.php',
             $notifier->notice['errors'][0]['backtrace'][0]['file'],
             'The root dir is filtered from the backtrace'
         );

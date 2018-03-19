@@ -420,7 +420,7 @@ class Notifier
                 continue;
             }
             foreach ($error['backtrace'] as &$frame) {
-                $frame['file'] = preg_replace("~^$projectRoot~", '[PROJECT_ROOT]', $frame['file']);
+                $frame['file'] = preg_replace("~^$projectRoot~", '/PROJECT_ROOT', $frame['file']);
             }
         }
         return $notice;
