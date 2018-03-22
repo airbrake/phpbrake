@@ -11,6 +11,7 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 
+
 /**
  * Airbrake exception notifier.
  */
@@ -45,6 +46,7 @@ class Notifier
     private $rateLimitReset;
 
     private $codeHunk;
+    private $context;
 
     /**
      * Constructor
@@ -70,21 +72,53 @@ class Notifier
         $this->opt = array_merge([
           'host' => 'api.airbrake.io',
         ], $opt);
-
-        if (!empty($opt['rootDirectory'])) {
-            $this->addFilter(function ($notice) {
-                return $this->rootDirectoryFilter($notice);
-            });
-        }
-
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
+        $this->context = $this->buildContext();
 
         if (self::$instanceCount === 0) {
             Instance::set($this);
         }
         self::$instanceCount++;
+    }
+
+    private function buildContext()
+    {
+        $context = [
+            'notifier' => [
+                'name' => 'phpbrake',
+                'version' => '0.5.3',
+                'url' => 'https://github.com/airbrake/phpbrake',
+            ],
+            'os' => php_uname(),
+            'language' => 'php ' . phpversion(),
+        ];
+
+        if (!empty($this->opt['appVersion'])) {
+            $context['version'] = $this->opt['appVersion'];
+        }
+        if (!empty($this->opt['environment'])) {
+            $context['environment'] = $this->opt['environment'];
+        }
+        if (($hostname = gethostname()) !== false) {
+            $context['hostname'] = $hostname;
+        }
+
+        if (!empty($this->opt['rootDirectory'])) {
+            $context['rootDirectory'] = $this->opt['rootDirectory'];
+
+            $rev = $this->gitRevision($this->opt['rootDirectory']);
+            if ($rev) {
+                $context['revision'] = $rev;
+            }
+
+            $this->addFilter(function ($notice) {
+                return $this->rootDirectoryFilter($notice);
+            });
+        }
+
+        return $context;
     }
 
     private function newHTTPClient()
@@ -187,24 +221,7 @@ class Notifier
             'backtrace' => $this->backtrace($exc)
         ];
 
-        $context = [
-            'notifier' => [
-                'name' => 'phpbrake',
-                'version' => '0.5.3',
-                'url' => 'https://github.com/airbrake/phpbrake',
-            ],
-            'os' => php_uname(),
-            'language' => 'php ' . phpversion(),
-        ];
-        if (!empty($this->opt['appVersion'])) {
-            $context['version'] = $this->opt['appVersion'];
-        }
-        if (!empty($this->opt['environment'])) {
-            $context['environment'] = $this->opt['environment'];
-        }
-        if (($hostname = gethostname()) !== false) {
-            $context['hostname'] = $hostname;
-        }
+        $context = $this->context;
         if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
             $scheme = isset($_SERVER['HTTPS']) ? 'https' : 'http';
             $context['url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -424,5 +441,50 @@ class Notifier
             }
         }
         return $notice;
+    }
+
+    protected function gitRevision($dir)
+    {
+        $headFile = join(DIRECTORY_SEPARATOR, [$dir, '.git', 'HEAD']);
+        $head = @file_get_contents($headFile);
+        if ($head === false) {
+            return null;
+        }
+
+        $head = rtrim($head);
+        $prefix = 'ref: ';
+        if (strpos($head, $prefix) === false) {
+            return $head;
+        }
+        $head = substr($head, strlen($prefix));
+
+        $refFile = join(DIRECTORY_SEPARATOR, [$dir, '.git', $head]);
+        $rev = @file_get_contents($refFile);
+        if ($rev !== false) {
+            return rtrim($rev);
+        }
+
+        $refsFiles = join(DIRECTORY_SEPARATOR, [$dir, '.git', 'packed-refs']);
+        $handle = fopen($refsFiles, 'r');
+        if (!$handle) {
+            return null;
+        }
+
+        while (($line = fgets($handle)) !== false) {
+            if (!$line || $line[0] === '#' || $line[0] === '^') {
+                continue;
+            }
+
+            $parts = explode(' ', rtrim($line));
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            if ($parts[1] == $head) {
+                return $parts[0];
+            }
+        }
+
+        return null;
     }
 }

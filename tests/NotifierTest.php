@@ -106,22 +106,24 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testRootDirectoryOption()
     {
+        $rootDir = dirname(__DIR__);
         $notifier = new NotifierMock([
             'projectId' => 42,
             'projectKey' => 'api_key',
-            'rootDirectory' => __DIR__,
+            'rootDirectory' => $rootDir,
         ]);
         $notifier->notify(Troublemaker::newException());
         $this->assertEquals(
-            __DIR__,
+            $rootDir,
             $notifier->notice['context']['rootDirectory'],
             'The rootDirectory option is sent in the context'
         );
         $this->assertEquals(
-            '/PROJECT_ROOT/Troublemaker.php',
+            '/PROJECT_ROOT/tests/Troublemaker.php',
             $notifier->notice['errors'][0]['backtrace'][0]['file'],
             'The root dir is filtered from the backtrace'
         );
+        $this->assertArrayHasKey('revision', $notifier->notice['context']);
     }
 
     /** @dataProvider errorResponseProvider */
