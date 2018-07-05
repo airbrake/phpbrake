@@ -174,4 +174,27 @@ class NotifierTest extends PHPUnit_Framework_TestCase
             $notifier->notice['context']['userAddr']
         );
     }
+
+    public function testKeysBlacklist()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 1,
+            'projectKey' => 'api_key',
+            'keysBlacklist' => ['/key1/'],
+        ]);
+        $notice = $notifier->buildNotice(Troublemaker::newException());
+        $notice['params'] = [
+            'key1' => 'value1',
+            'key2' => 'value2',
+            'key3' => ['key1' => 'value1'],
+        ];
+        $resp = $notifier->sendNotice($notice);
+
+        $this->assertEquals('12345', $resp['id']);
+        $this->assertEquals([
+            'key1' => '[Filtered]',
+            'key2' => 'value2',
+            'key3' => ['key1' => '[Filtered]'],
+        ], $notifier->notice['params']);
+    }
 }

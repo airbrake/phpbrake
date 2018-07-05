@@ -58,6 +58,7 @@ class Notifier
      *  - appVersion
      *  - environment
      *  - rootDirectory
+     *  - keysBlacklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface
      *
      * @param array $opt the options
@@ -71,11 +72,24 @@ class Notifier
 
         $this->opt = array_merge([
           'host' => 'api.airbrake.io',
+          'keysBlacklist' => ['/password/i', '/secret/i'],
         ], $opt);
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
         $this->context = $this->buildContext();
+
+        if (array_key_exists('keysBlacklist', $this->opt)) {
+            $this->addFilter(function ($notice) {
+                $noticeKeys = array('context', 'params', 'session', 'environment');
+                foreach ($noticeKeys as $key) {
+                    if (array_key_exists($key, $notice)) {
+                        $this->filterKeys($notice[$key], $this->opt['keysBlacklist']);
+                    }
+                }
+                return $notice;
+            });
+        }
 
         if (self::$instanceCount === 0) {
             Instance::set($this);
@@ -493,5 +507,20 @@ class Notifier
         }
 
         return null;
+    }
+
+    private function filterKeys(array &$arr, array $keysBlacklist)
+    {
+        foreach ($arr as $k => $v) {
+            foreach ($keysBlacklist as $regexp) {
+                if (preg_match($regexp, $k)) {
+                    $arr[$k] = '[Filtered]';
+                    continue;
+                }
+                if (is_array($v)) {
+                    $this->filterKeys($arr[$k], $keysBlacklist);
+                }
+            }
+        }
     }
 }
