@@ -57,6 +57,7 @@ class Notifier
      *  - host          airbrake api host e.g.: 'api.airbrake.io' or 'http://errbit.example.com'
      *  - appVersion
      *  - environment
+     *  - revision      git revision
      *  - rootDirectory
      *  - keysBlacklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface

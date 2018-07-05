@@ -218,6 +218,18 @@ $notifier = new Airbrake\Notifier([
 ]);
 ```
 
+### Filtering keys
+
+With `keysBlacklist` option you can specify list of keys containing sensitive information that must be filtered out, e.g.:
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'keysBlacklist' => ['/secret/i', '/password/i'],
+    // ...
+]);
+```
+
 ## Running tests
 
 ```bash
