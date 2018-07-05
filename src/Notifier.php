@@ -95,27 +95,34 @@ class Notifier
             'language' => 'php ' . phpversion(),
         ];
 
-        if (!empty($this->opt['appVersion'])) {
+        if (array_key_exists('appVersion', $this->opt)) {
             $context['version'] = $this->opt['appVersion'];
         }
-        if (!empty($this->opt['environment'])) {
+        if (array_key_exists('environment', $this->opt)) {
             $context['environment'] = $this->opt['environment'];
         }
         if (($hostname = gethostname()) !== false) {
             $context['hostname'] = $hostname;
         }
+        if (array_key_exists('revision', $this->opt)) {
+            $context['revision'] = $this->opt['revision'];
+        } else if (array_key_exists('SOURCE_VERSION', $_ENV)) {
+            // https://devcenter.heroku.com/changelog-items/630
+            $context['revision'] = $_ENV['SOURCE_VERSION'];
+        }
 
-        if (!empty($this->opt['rootDirectory'])) {
+        if (array_key_exists('rootDirectory', $this->opt)) {
             $context['rootDirectory'] = $this->opt['rootDirectory'];
-
-            $rev = $this->gitRevision($this->opt['rootDirectory']);
-            if ($rev) {
-                $context['revision'] = $rev;
-            }
-
             $this->addFilter(function ($notice) {
                 return $this->rootDirectoryFilter($notice);
             });
+
+            if (!array_key_exists('revision', $context)) {
+                $rev = $this->gitRevision($this->opt['rootDirectory']);
+                if ($rev) {
+                    $context['revision'] = $rev;
+                }
+            }
         }
 
         return $context;
@@ -123,7 +130,7 @@ class Notifier
 
     private function newHTTPClient()
     {
-        if (isset($this->opt['httpClient'])) {
+        if (array_key_exists('httpClient', $this->opt)) {
             if ($this->opt['httpClient'] instanceof GuzzleHttp\ClientInterface) {
                 return $this->opt['httpClient'];
             }
