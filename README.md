@@ -72,6 +72,17 @@ $notifier->addFilter(function ($notice) {
 });
 ```
 
+## Add user data to the notice
+
+```php
+$notifier->addFilter(function ($notice) {
+    $notice['context']['user']['name'] = 'Avocado Jones';
+    $notice['context']['user']['email'] = 'AJones@guacamole.com';
+    $notice['context']['user']['id'] = 12345;
+    return $notice;
+});
+```
+
 ## Setting severity
 
 [Severity](https://airbrake.io/docs/airbrake-faq/what-is-severity/) allows
