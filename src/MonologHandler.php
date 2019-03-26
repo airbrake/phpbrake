@@ -30,8 +30,14 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
      */
     protected function write(array $record)
     {
-        $trace = array_slice(debug_backtrace(), 3);
-        $exc = new Errors\Base($record['message'], $trace);
+        if (isset($record['context']['exception'])) {
+            $exc = $record['context']['exception'];
+            $trace = $exc->getTrace();
+        } else {
+            $trace = array_slice(debug_backtrace(), 3);
+            $exc = new Errors\Base($record['message'], $trace);
+        }
+
         $notice = $this->notifier->buildNotice($exc);
         $notice['errors'][0]['type'] = $record['channel'].'.'.$record['level_name'];
         $notice['context']['severity'] = $record['level_name'];
