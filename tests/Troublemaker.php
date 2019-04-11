@@ -33,4 +33,13 @@ class Troublemaker
     {
         self::doLogAddError($log);
     }
+
+    public static function newNestedException()
+    {
+        try {
+            throw Troublemaker::newException();
+        } catch (\Exception $e) {
+            return new \Exception('world', 207, $e);
+        }
+    }
 }

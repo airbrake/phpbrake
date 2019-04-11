@@ -54,7 +54,7 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
                 33 => '    {',
                 34 => '        self::doLogAddError($log);',
                 35 => '    }',
-                36 => '}',
+                36 => '',
             ],
         ]];
         for ($i = 0; $i < count($wanted); $i++) {

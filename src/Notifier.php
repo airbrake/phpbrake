@@ -237,11 +237,21 @@ class Notifier
      */
     public function buildNotice($exc)
     {
-        $error = [
-            'type' => get_class($exc),
-            'message' => $exc->getMessage(),
-            'backtrace' => $this->backtrace($exc)
-        ];
+        $errors = [];
+        while (!empty($exc)) {
+            $err = [
+                'type' => get_class($exc),
+                'message' => $exc->getMessage(),
+                'backtrace' => $this->backtrace($exc)
+            ];
+            array_push($errors, $err);
+
+            if (!is_callable([$exc, 'getPrevious'])) {
+                break;
+            }
+
+            $exc = $exc->getPrevious();
+        }
 
         $context = $this->context;
         if (isset($_SERVER['HTTP_HOST']) && isset($_SERVER['REQUEST_URI'])) {
@@ -259,7 +269,7 @@ class Notifier
         }
 
         $notice = [
-            'errors' => [$error],
+            'errors' => $errors,
             'context' => $context,
         ];
         if (!empty($_REQUEST)) {
