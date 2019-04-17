@@ -197,4 +197,39 @@ class NotifierTest extends PHPUnit_Framework_TestCase
             'key3' => ['key1' => '[Filtered]'],
         ], $notifier->notice['params']);
     }
+
+    public function testNestedException()
+    {
+        $notifier = $this->newNotifier();
+        $exc = Troublemaker::newNestedException();
+        $notifier->notify($exc);
+
+        $this->assertCount(2, $notifier->notice['errors']);
+
+        $err = $notifier->notice['errors'][0];
+        $this->assertEquals($err['message'], 'world');
+        $this->assertEquals($err['type'], 'Exception');
+        $this->assertEquals(
+            $err['backtrace'][0]['function'],
+            "Airbrake\Tests\Troublemaker::newNestedException"
+        );
+        $this->assertEquals(
+            $err['backtrace'][0]['file'],
+            dirname(dirname(__FILE__))."/tests/Troublemaker.php"
+        );
+        $this->assertEquals($err['backtrace'][0]['line'], 42);
+
+        $err = $notifier->notice['errors'][1];
+        $this->assertEquals($err['message'], 'hello');
+        $this->assertEquals($err['type'], 'Exception');
+        $this->assertEquals(
+            $err['backtrace'][0]['function'],
+            "Airbrake\Tests\Troublemaker::doNewException"
+        );
+        $this->assertEquals(
+            $err['backtrace'][0]['file'],
+            dirname(dirname(__FILE__))."/tests/Troublemaker.php"
+        );
+        $this->assertEquals($err['backtrace'][0]['line'], 19);
+    }
 }
