@@ -152,9 +152,9 @@ class Notifier
             throw new Exception('phpbrake: httpClient must implement GuzzleHttp\ClientInterface');
         }
         return new Client([
-            'connect_timeout' => 5,
-            'read_timeout' => 5,
-            'timeout' => 5,
+            'connect_timeout' => 10,
+            'read_timeout' => 10,
+            'timeout' => 10,
         ]);
     }
 
