@@ -9,7 +9,7 @@ trait ChecksForError
     {
         $notice = $notifier->notice;
         $error = $notice['errors'][0];
-        $this->assertEquals('Airbrake\Errors\Notice', $error['type']);
+        $this->assertEquals('E_NOTICE', $error['type']);
         $this->assertEquals('Undefined variable: undefinedVar', $error['message']);
     }
 

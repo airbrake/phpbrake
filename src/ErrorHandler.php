@@ -42,26 +42,17 @@ class ErrorHandler
             array_shift($trace);
         }
 
-        switch ($code) {
-            case E_NOTICE:
-            case E_USER_NOTICE:
-                $exc = new Errors\Notice($message, $trace);
-                break;
-            case E_WARNING:
-            case E_USER_WARNING:
-                $exc = new Errors\Warning($message, $trace);
-                break;
-            case E_ERROR:
-            case E_CORE_ERROR:
-            case E_RECOVERABLE_ERROR:
-            case E_USER_ERROR:
-                $exc = new Errors\Fatal($message, $trace);
-                break;
-            default:
-                $exc = new Errors\Error($message, $trace);
-                break;
+        $exc = new Errors\Base($message, $trace);
+        $notice = $this->notifier->buildNotice($exc);
+
+        $notice['errors'][0]['type'] = $this->errnoType($code);
+        $severity = $this->errnoSeverity($code);
+        if ($severity !== '') {
+            $notice['context']['severity'] = $severity;
         }
-        $this->notifier->notify($exc);
+
+        $this->notifier->sendNotice($notice);
+
         return false;
     }
 
@@ -93,12 +84,15 @@ class ErrorHandler
             $error['line'] === $this->lastError['line']) {
             return;
         }
+
         $trace = [[
             'file' => $error['file'],
             'line' => $error['line'],
         ]];
-        $exc = new Errors\Fatal($error['message'], $trace);
-        $this->notifier->notify($exc);
+        $exc = new Errors\Base($error['message'], $trace);
+        $notice = $this->notifier->buildNotice($exc);
+        $notice['errors'][0]['type'] = 'shutdown';
+        $this->notifier->sendNotice($notice);
     }
 
     /**
@@ -109,5 +103,57 @@ class ErrorHandler
         set_error_handler([$this, 'onError'], error_reporting());
         set_exception_handler([$this, 'onException']);
         register_shutdown_function([$this, 'onShutdown']);
+    }
+
+    protected function errnoType($code)
+    {
+        switch ($code) {
+            case E_ERROR:
+                return 'E_ERROR';
+            case E_WARNING:
+                return 'E_WARNING';
+            case E_PARSE:
+                return 'E_PARSE';
+            case E_NOTICE:
+                return 'E_NOTICE';
+            case E_CORE_ERROR:
+                return 'E_CORE_ERROR';
+            case E_CORE_WARNING:
+                return 'E_CORE_WARNING';
+            case E_COMPILE_ERROR:
+                return 'E_COMPILE_ERROR';
+            case E_COMPILE_WARNING:
+                return 'E_COMPILE_WARNING';
+            case E_USER_ERROR:
+                return 'E_USER_ERROR';
+            case E_USER_WARNING:
+                return 'E_USER_WARNING';
+            case E_USER_NOTICE:
+                return 'E_USER_NOTICE';
+            case E_STRICT:
+                return 'E_STRICT';
+            case E_RECOVERABLE_ERROR:
+                return 'E_RECOVERABLE_ERROR';
+            case E_DEPRECATED:
+                return 'E_DEPRECATED';
+            case E_USER_DEPRECATED:
+                return 'E_USER_DEPRECATED';
+            case E_ALL:
+                return 'E_ALL';
+        }
+        return 'E_UNKNOWN';
+    }
+
+    protected function errnoSeverity($code)
+    {
+        switch ($code) {
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                return 'notice';
+            case E_WARNING:
+            case E_USER_WARNING:
+                return 'warning';
+        }
+        return '';
     }
 }
