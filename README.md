@@ -4,6 +4,23 @@
 
 ![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
+## Features
+PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
+PHPBrake includes many useful features that give you control over when and
+what you send to Airbrake, you can:
+
+- [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
+- [Add custom data to a notice](https://github.com/airbrake/phpbrake#adding-custom-data-to-the-notice)
+- [Filter sensitive data from the notice](https://github.com/airbrake/phpbrake#filtering-sensitive-data-from-the-notice)
+- [Ignore specific exceptions](https://github.com/airbrake/phpbrake#ignoring-specific-exceptions)
+- [Configure an error handler to capture uncaught exceptions](https://github.com/airbrake/phpbrake#error-handler)
+- [Integrate with monolog](https://github.com/airbrake/phpbrake#monolog-integration)
+- [Integrate with Laravel](https://github.com/TheoKouzelis/laravel-airbrake)
+- [Integrate with CakePHP 3.x](https://gist.github.com/mauriciovillalobos/01a97f9ee6179ad70b17d54f37cc5010)
+- [Integrate with Symfony](https://github.com/aminin/airbrake-bundle)
+- [Integrate with Zend](https://github.com/FrankHouweling/zend-airbrake)
+- and more
+
 ## Installation
 
 ```bash
@@ -241,6 +258,14 @@ vendor/bin/phpdoc -d src
 firefox output/index.html
 ```
 
+Contact
+-------
+
+In case you have a problem, question or a bug report, feel free to:
+
+* [file an issue](https://github.com/airbrake/phpbrake/issues)
+* [send us an email](mailto:support@airbrake.io)
+  
 ## License
 
 PHPBrake is licensed under [The MIT License (MIT)](LICENSE).
