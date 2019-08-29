@@ -5,7 +5,7 @@
 ![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
 ## Features
-PHPBrake is the official [Airbrake](https://airbrake.io) PHP notifier.
+PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
 PHPBrake includes many useful features that give you control over when and
 what you send to Airbrake, you can:
 
