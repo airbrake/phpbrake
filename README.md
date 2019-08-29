@@ -5,16 +5,17 @@
 ![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
 ## Features
-PHPBrake is the official Airbrake PHP notifier.
-PHPBrake includes a many useful features that give you control over when and
+PHPBrake is the official [Airbrake](https://airbrake.io) PHP notifier.
+PHPBrake includes many useful features that give you control over when and
 what you send to Airbrake, you can:
 
 - [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
 - [Add custom data to a notice](https://github.com/airbrake/phpbrake#adding-custom-data-to-the-notice)
 - [Filter sensitive data from the notice](https://github.com/airbrake/phpbrake#filtering-sensitive-data-from-the-notice)
 - [Ignore specific exceptions](https://github.com/airbrake/phpbrake#ignoring-specific-exceptions)
-- Configure an error handler to capture uncaught exceptions
+- [Configure an error handler to capture uncaught exceptions](https://github.com/airbrake/phpbrake#error-handler)
 - [Integrate with monolog](https://github.com/airbrake/phpbrake#monolog-integration)
+- and more
 
 ## Installation
 
