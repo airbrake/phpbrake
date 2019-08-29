@@ -5,7 +5,7 @@
 ![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
 ## Features
-PHPBrake is the official [Airbrake](https://airbrake.io) PHP notifier.
+PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
 PHPBrake includes many useful features that give you control over when and
 what you send to Airbrake, you can:
 
@@ -15,6 +15,10 @@ what you send to Airbrake, you can:
 - [Ignore specific exceptions](https://github.com/airbrake/phpbrake#ignoring-specific-exceptions)
 - [Configure an error handler to capture uncaught exceptions](https://github.com/airbrake/phpbrake#error-handler)
 - [Integrate with monolog](https://github.com/airbrake/phpbrake#monolog-integration)
+- [Integrate with Laravel](https://github.com/TheoKouzelis/laravel-airbrake)
+- [Integrate with CakePHP 3.x](https://gist.github.com/mauriciovillalobos/01a97f9ee6179ad70b17d54f37cc5010)
+- [Integrate with Symfony](https://github.com/aminin/airbrake-bundle)
+- [Integrate with Zend](https://github.com/FrankHouweling/zend-airbrake)
 - and more
 
 ## Installation
