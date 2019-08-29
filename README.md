@@ -4,6 +4,18 @@
 
 ![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
+## Features
+PHPBrake is the official Airbrake PHP notifier.
+PHPBrake includes a many useful features that give you control over when and
+what you send to Airbrake, you can:
+
+- [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
+- [Add custom data to a notice](https://github.com/airbrake/phpbrake#adding-custom-data-to-the-notice)
+- [Filter sensitive data from the notice](https://github.com/airbrake/phpbrake#filtering-sensitive-data-from-the-notice)
+- [Ignore specific exceptions](https://github.com/airbrake/phpbrake#ignoring-specific-exceptions)
+- Configure an error handler to capture uncaught exceptions
+- [Integrate with monolog](https://github.com/airbrake/phpbrake#monolog-integration)
+
 ## Installation
 
 ```bash
@@ -241,6 +253,14 @@ vendor/bin/phpdoc -d src
 firefox output/index.html
 ```
 
+Contact
+-------
+
+In case you have a problem, question or a bug report, feel free to:
+
+* [file an issue](https://github.com/airbrake/phpbrake/issues)
+* [send us an email](mailto:support@airbrake.io)
+  
 ## License
 
 PHPBrake is licensed under [The MIT License (MIT)](LICENSE).
