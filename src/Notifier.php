@@ -146,7 +146,7 @@ class Notifier
     private function newHTTPClient()
     {
         if (array_key_exists('httpClient', $this->opt)) {
-            if ($this->opt['httpClient'] instanceof GuzzleHttp\ClientInterface) {
+            if ($this->opt['httpClient'] instanceof \GuzzleHttp\ClientInterface) {
                 return $this->opt['httpClient'];
             }
             throw new Exception('phpbrake: httpClient must implement GuzzleHttp\ClientInterface');
