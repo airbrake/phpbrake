@@ -28,6 +28,10 @@ class CodeHunk
 
     private function _get($file, $line)
     {
+        if (!file_exists($file)) {
+            return null;
+        }
+
         $fh = fopen($file, 'r');
         if (!$fh) {
             return null;
