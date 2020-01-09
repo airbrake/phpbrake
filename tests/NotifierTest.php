@@ -232,4 +232,23 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         );
         $this->assertEquals($err['backtrace'][0]['line'], 19);
     }
+
+    public function testPhpModulesAreSkipped()
+    {
+        $notifier = $this->newNotifier();
+        $exc = new FakeTraceException();
+        $exc->addFakeTrace(2, [
+            'file' => 'newrelic/Guzzle6',
+            'line' => 1,
+            'function' => 'GuzzleHttp\Handler\{closure}',
+            'class' => 'GuzzleHttp\Handler\Proxy',
+            'args' => [],
+        ]);
+        $notifier->notify($exc);
+
+        $this->assertEquals(
+            $notifier->notice['errors'][0]['backtrace'][1]['file'],
+            'newrelic/Guzzle6'
+        );
+    }
 }
