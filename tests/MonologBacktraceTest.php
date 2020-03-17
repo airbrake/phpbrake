@@ -16,7 +16,7 @@ class MonologBacktraceTest extends PHPUnit_Framework_TestCase
         $log = new \Monolog\Logger('billing');
         $log->pushHandler(new \Airbrake\MonologHandler($this->notifier));
 
-        $log->addError('charge failed', [
+        $log->error('charge failed', [
             'client_id' => 123,
             'exception'=> Troublemaker::newException(),
         ]);

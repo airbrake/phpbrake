@@ -41,7 +41,7 @@ class MonologHandlerTest extends PHPUnit_Framework_TestCase
             'code' => [
                 27 => '    private static function doLogAddError($log)',
                 28 => '    {',
-                29 => "        \$log->addError('charge failed', ['client_id' => 123]);",
+                29 => "        \$log->error('charge failed', ['client_id' => 123]);",
                 30 => '    }',
                 31 => '',
             ],
