@@ -26,7 +26,7 @@ class Troublemaker
 
     private static function doLogAddError($log)
     {
-        $log->addError('charge failed', ['client_id' => 123]);
+        $log->error('charge failed', ['client_id' => 123]);
     }
 
     public static function logAddError($log)

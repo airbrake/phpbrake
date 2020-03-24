@@ -28,7 +28,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record)
+    protected function write(array $record): void
     {
         if (isset($record['context']['exception'])) {
             $exc = $record['context']['exception'];
@@ -48,6 +48,6 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
             $notice['params']['monolog_extra'] = $record['extra'];
         }
 
-        return $this->notifier->sendNotice($notice);
+        $this->notifier->sendNotice($notice);
     }
 }
