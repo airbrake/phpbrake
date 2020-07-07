@@ -59,7 +59,7 @@ class Notifier
      *  - environment
      *  - revision      git revision
      *  - rootDirectory
-     *  - keysBlacklist list of keys containing sensitive information that must be filtered out
+     *  - keysBlocklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface
      *
      * @param array $opt the options
@@ -71,21 +71,29 @@ class Notifier
             throw new Exception('phpbrake: Notifier requires projectId and projectKey');
         }
 
+        if (isset($opt['keysBlacklist'])) {
+            error_log(
+                'phpbrake: keysBlacklist is a deprecated option. Use keysBlocklist instead.'
+            );
+            $opt['keysBlocklist'] = $opt['keysBlacklist'];
+        }
+
         $this->opt = array_merge([
           'host' => 'api.airbrake.io',
-          'keysBlacklist' => ['/password/i', '/secret/i'],
+          'keysBlocklist' => ['/password/i', '/secret/i'],
         ], $opt);
+
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
         $this->context = $this->buildContext();
 
-        if (array_key_exists('keysBlacklist', $this->opt)) {
+        if (array_key_exists('keysBlocklist', $this->opt)) {
             $this->addFilter(function ($notice) {
                 $noticeKeys = array('context', 'params', 'session', 'environment');
                 foreach ($noticeKeys as $key) {
                     if (array_key_exists($key, $notice)) {
-                        $this->filterKeys($notice[$key], $this->opt['keysBlacklist']);
+                        $this->filterKeys($notice[$key], $this->opt['keysBlocklist']);
                     }
                 }
                 return $notice;
@@ -520,16 +528,16 @@ class Notifier
         return null;
     }
 
-    private function filterKeys(array &$arr, array $keysBlacklist)
+    private function filterKeys(array &$arr, array $keysBlocklist)
     {
         foreach ($arr as $k => $v) {
-            foreach ($keysBlacklist as $regexp) {
+            foreach ($keysBlocklist as $regexp) {
                 if (preg_match($regexp, $k)) {
                     $arr[$k] = '[Filtered]';
                     continue;
                 }
                 if (is_array($v)) {
-                    $this->filterKeys($arr[$k], $keysBlacklist);
+                    $this->filterKeys($arr[$k], $keysBlocklist);
                 }
             }
         }

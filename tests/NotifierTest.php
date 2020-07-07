@@ -175,12 +175,46 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testKeysBlacklist()
+    public function testDeprecatedKeysBlacklist()
     {
+        $capture = tmpfile();
+        $saved = ini_set('error_log', stream_get_meta_data($capture)['uri']);
+
         $notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
             'keysBlacklist' => ['/key1/'],
+        ]);
+
+        ini_set('error_log', $saved);
+        $errorLog = stream_get_contents($capture);
+
+        $deprecatationWarning = '/keysBlacklist is a deprecated option/';
+
+        $this->assertRegexp($deprecatationWarning, $errorLog);
+
+        $notice = $notifier->buildNotice(Troublemaker::newException());
+        $notice['params'] = [
+            'key1' => 'value1',
+            'key2' => 'value2',
+            'key3' => ['key1' => 'value1'],
+        ];
+        $resp = $notifier->sendNotice($notice);
+
+        $this->assertEquals('12345', $resp['id']);
+        $this->assertEquals([
+            'key1' => '[Filtered]',
+            'key2' => 'value2',
+            'key3' => ['key1' => '[Filtered]'],
+        ], $notifier->notice['params']);
+    }
+
+    public function testKeysBlocklist()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 1,
+            'projectKey' => 'api_key',
+            'keysBlocklist' => ['/key1/'],
         ]);
         $notice = $notifier->buildNotice(Troublemaker::newException());
         $notice['params'] = [
