@@ -42,4 +42,15 @@ class Troublemaker
             return new \Exception('world', 207, $e);
         }
     }
+
+    private static function doEchoUndefinedIndex()
+    {
+        $foo = [];
+        echo $foo[0];
+    }
+
+    public static function echoUndefinedIndex()
+    {
+        self::doEchoUndefinedIndex();
+    }
 }
