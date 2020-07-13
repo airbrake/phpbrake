@@ -31,6 +31,13 @@ class ErrorHandler
      */
     public function onError($code, $message, $file, $line)
     {
+        // If error_reporting() setting has changed since the ErrorHandler was
+        // installed, respect the new settings. This also respects the
+        // @-operator (issue #105)
+        if ((error_reporting() & $code) === 0) {
+            return false;
+        }
+
         $this->lastError = [
             'message' => $message,
             'file' => $file,

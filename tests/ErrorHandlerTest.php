@@ -33,6 +33,19 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testSuppression()
+    {
+        list($notifier, $handler) = $this->makeHandlerBoundNotifier();
+
+        // Cause two errors in a row, but suppress the second one. Verify that
+        // the notifier's most recent notice corresponds to the first error
+        // generated.
+        Troublemaker::echoUndefinedVar();
+        @Troublemaker::echoUndefinedIndex();
+
+        $this->testPostsError($notifier);
+    }
+
     private function makeHandlerBoundNotifier()
     {
         $notifier = new NotifierMock([
@@ -58,7 +71,7 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
     private function arrangeOnShutdownNotifier()
     {
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
-        @Troublemaker::echoUndefinedVar();
+        Troublemaker::echoUndefinedVar();
         $handler->onShutdown();
 
         return $notifier;
