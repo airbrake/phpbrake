@@ -5,8 +5,8 @@
     "homepage": "https://airbrake.io",
     "license": "MIT",
     "require": {
-        "php": ">=5.4",
-        "guzzlehttp/guzzle": "^6.3",
+        "php": "^7.2.5",
+        "guzzlehttp/guzzle": "^7.0",
         "cash/lrucache": "^1.0"
     },
     "require-dev": {

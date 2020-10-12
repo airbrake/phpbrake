@@ -57,8 +57,10 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
 
     private function arrangeOnShutdownNotifier()
     {
+        $saved = error_reporting(E_ALL | E_NOTICE);
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         @Troublemaker::echoUndefinedVar();
+        error_reporting($saved);
         $handler->onShutdown();
 
         return $notifier;
