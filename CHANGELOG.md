@@ -1,6 +1,11 @@
 Phpbrake Changelog
 ==================
 
+### [v0.7.4][v0.7.4] (October 15, 2020)
+
+* Changed `guzzlehttp/guzzle` dependency version requirement from `^6.3` to
+  `>=6.3` ([#109](https://github.com/airbrake/phpbrake/pull/109))
+
 ### [v0.4.0][v0.4.0] (Sep 7, 2017)
 
 * SendNotice returns notice with id and error keys set.
@@ -19,3 +24,4 @@ Phpbrake Changelog
 [v0.2.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.2.0
 [v0.2.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.2.4
 [v0.4.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.4.0
+[v0.7.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.7.4
