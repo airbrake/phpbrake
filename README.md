@@ -234,12 +234,12 @@ $notifier = new Airbrake\Notifier([
 
 ### Filtering keys
 
-With `keysBlacklist` option you can specify list of keys containing sensitive information that must be filtered out, e.g.:
+With `keysBlocklist` option you can specify list of keys containing sensitive information that must be filtered out, e.g.:
 
 ```php
 $notifier = new Airbrake\Notifier([
     // ...
-    'keysBlacklist' => ['/secret/i', '/password/i'],
+    'keysBlocklist' => ['/secret/i', '/password/i'],
     // ...
 ]);
 ```
@@ -265,7 +265,7 @@ In case you have a problem, question or a bug report, feel free to:
 
 * [file an issue](https://github.com/airbrake/phpbrake/issues)
 * [send us an email](mailto:support@airbrake.io)
-  
+
 ## License
 
 PHPBrake is licensed under [The MIT License (MIT)](LICENSE).
