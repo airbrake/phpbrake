@@ -111,7 +111,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.7.4',
+                'version' => '0.7.5',
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
