@@ -1,6 +1,12 @@
 Phpbrake Changelog
 ==================
 
+### [v0.7.5][v0.7.5] (Nov 4, 2020)
+
+* Changed deprecated `keysBlacklist` in favor of the new option `keysBlocklist`
+  ([#104](https://github.com/airbrake/phpbrake/pull/104))
+
+
 ### [v0.7.4][v0.7.4] (October 15, 2020)
 
 * Changed `guzzlehttp/guzzle` dependency version requirement from `^6.3` to
@@ -25,3 +31,4 @@ Phpbrake Changelog
 [v0.2.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.2.4
 [v0.4.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.4.0
 [v0.7.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.7.4
+[v0.7.5]: https://github.com/airbrake/phpbrake/releases/tag/v0.7.5
