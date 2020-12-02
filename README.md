@@ -1,8 +1,10 @@
+<p align="center">
+  <img src="https://airbrake-github-assets.s3.amazonaws.com/brand/airbrake-full-logo.png" width="200">
+</p>
+
 # PHPBrake
 
 [![Build Status](https://travis-ci.org/airbrake/phpbrake.svg?branch=master)](https://travis-ci.org/airbrake/phpbrake)
-
-![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
 
 ## Features
 PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
