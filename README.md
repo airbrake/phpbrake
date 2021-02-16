@@ -8,8 +8,8 @@
 
 ## Features
 PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
-PHPBrake includes many useful features that give you control over when and
-what you send to Airbrake, you can:
+PHPBrake supports PHP 5.4 and higher. PHPBrake includes many useful features 
+that give you control over when and what you send to Airbrake, you can:
 
 - [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
 - [Add custom data to a notice](https://github.com/airbrake/phpbrake#adding-custom-data-to-the-notice)
