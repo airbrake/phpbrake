@@ -47,6 +47,7 @@ class Notifier
 
     private $codeHunk;
     private $context;
+    private $errorConfig;
 
     /**
      * Constructor
@@ -78,9 +79,14 @@ class Notifier
             $opt['keysBlocklist'] = $opt['keysBlacklist'];
         }
 
+        $remoteConfig = new RemoteConfig($opt['projectId']);
+        $this->errorConfig = $remoteConfig->errorConfig();
+        if (isset($this->opt['host']) == false) {
+            $this->opt['host'] = $errorConfig['host'];
+        }
+
         $this->opt = array_merge([
-          'host' => 'api.airbrake.io',
-          'keysBlocklist' => ['/password/i', '/secret/i'],
+          'keysBlocklist' => ['/password/i', '/secret/i']
         ], $opt);
 
         $this->httpClient = $this->newHTTPClient();
