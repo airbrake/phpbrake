@@ -11,6 +11,7 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 
+const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
 
 /**
  * Airbrake exception notifier.
@@ -47,6 +48,7 @@ class Notifier
 
     private $codeHunk;
     private $context;
+    private $errorConfig;
 
     /**
      * Constructor
@@ -78,10 +80,10 @@ class Notifier
             $opt['keysBlocklist'] = $opt['keysBlacklist'];
         }
 
-        $this->opt = array_merge([
-          'host' => 'api.airbrake.io',
-          'keysBlocklist' => ['/password/i', '/secret/i'],
-        ], $opt);
+        $this->opt = array_merge(
+            [ 'keysBlocklist' => ['/password/i', '/secret/i'] ],
+            $opt
+        );
 
         $this->httpClient = $this->newHTTPClient();
         $this->noticesURL = $this->buildNoticesURL();
@@ -111,7 +113,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.7.5',
+                'version' => AIRBRAKE_NOTIFIER_VERSION,
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
@@ -337,6 +339,7 @@ class Notifier
             'Authorization' => 'Bearer ' . $this->opt['projectKey'],
         ];
         $body = json_encode($notice);
+        $this->noticesURL = $this->buildNoticesURL();
         return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
     }
 
@@ -457,7 +460,7 @@ class Notifier
      */
     protected function buildNoticesURL()
     {
-        $schemeAndHost = $this->opt['host'];
+        $schemeAndHost = $this->errorHost();
         if (!preg_match('~^https?://~i', $schemeAndHost)) {
             $schemeAndHost = "https://$schemeAndHost";
         }
@@ -526,6 +529,22 @@ class Notifier
         }
 
         return null;
+    }
+
+    protected function errorHost()
+    {
+        if (isset($this->opt['host'])) {
+            return $this->opt['host'];
+        } else {
+            return $this->remoteConfigErrorHost();
+        }
+    }
+
+    protected function remoteConfigErrorHost()
+    {
+        $remoteConfig = new RemoteConfig($this->opt['projectId']);
+        $this->errorConfig = $remoteConfig->errorConfig();
+        return $this->errorConfig['host'];
     }
 
     private function filterKeys(array &$arr, array $keysBlocklist)
