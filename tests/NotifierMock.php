@@ -32,4 +32,9 @@ class NotifierMock extends Notifier
         $this->notice = json_decode($data, true);
         return new FulfilledPromise($this->resp);
     }
+
+    protected function remoteConfigErrorHost()
+    {
+        return 'api.airbrake.io';
+    }
 }

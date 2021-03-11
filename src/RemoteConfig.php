@@ -37,7 +37,7 @@ class RemoteConfig
         }
 
         if ($response->getStatusCode() != 200) {
-          return $this->defaultConfig();
+            return $this->defaultConfig();
         }
 
         $body = $response->getBody();
