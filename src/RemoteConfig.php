@@ -6,14 +6,17 @@ use GuzzleHttp\Client;
 
 class RemoteConfig
 {
-    private $defaultConfig = array(
-      "host" => 'api.airbrake.io',
-      "enabled" => true
-    );
+    protected $remoteConfigURL;
+    protected $httpClient;
+    private $defaultConfig = [
+        "host" => 'api.airbrake.io',
+        "enabled" => true
+    ];
+    private $remoteConfigURLFormatString = 'https://notifier-configs.airbrake.io' .
+        '/2020-06-18/config/%d/config.json';
 
     public function __construct($projectId)
     {
-        $this->projectId = $projectId;
         $this->remoteConfigURL = $this->buildRemoteUrl($projectId);
         $this->httpClient = $this->newHTTPClient();
     }
@@ -24,20 +27,21 @@ class RemoteConfig
     }
 
     /**
-      fetchConfig returns the remote error config from s3 when everything goes
-      right and the defaultConfig when there is an issue.
+      The fetchConfig method returns the remote error config from s3 when
+      everything goes right and returns the default config when there is an
+      issue.
     **/
     private function fetchConfig()
     {
         try {
             $response = $this->httpClient->request('GET', $this->remoteConfigURL);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             unset($e); // $e is not used.
-            return $this->defaultConfig();
+            return $this->defaultConfig;
         }
 
         if ($response->getStatusCode() != 200) {
-            return $this->defaultConfig();
+            return $this->defaultConfig;
         }
 
         $body = $response->getBody();
@@ -51,12 +55,12 @@ class RemoteConfig
         $array_not_found = is_array($config) == false;
         $config_not_found = array_key_exists("settings", $config) == false;
         if ($array_not_found || $config_not_found) {
-            return $this->defaultConfig();
+            return $this->defaultConfig;
         }
 
-        foreach ($config['settings'] as $config) {
-            if (isset($config["name"]) && $config["name"] == "errors") {
-                $errorConfig = $config;
+        foreach ($config['settings'] as $cfg) {
+            if (isset($cfg["name"]) && $cfg["name"] == "errors") {
+                $errorConfig = $cfg;
             }
         };
 
@@ -71,13 +75,16 @@ class RemoteConfig
         } else {
             $enabled = $this->defaultConfig['enabled'];
         }
+
         return array("host" => $host, "enabled" => $enabled);
     }
 
     private function buildRemoteUrl($projectId)
     {
-        return 'https://v1-production-notifier-configs.s3.amazonaws.com' .
-          "/2020-06-18/config/{$projectId}/config.json";
+        return sprintf(
+            $this->remoteConfigURLFormatString,
+            $projectId
+        );
     }
 
     private function newHTTPClient()
