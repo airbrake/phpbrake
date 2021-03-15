@@ -11,6 +11,7 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 
+const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
 
 /**
  * Airbrake exception notifier.
@@ -112,7 +113,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.7.5',
+                'version' => AIRBRAKE_NOTIFIER_VERSION,
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),

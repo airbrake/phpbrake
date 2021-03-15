@@ -14,6 +14,12 @@ class RemoteConfig
     ];
     private $remoteConfigURLFormatString = 'https://notifier-configs.airbrake.io' .
         '/2020-06-18/config/%d/config.json';
+    private $notifierInfo = [
+        'notifier_name' => 'phpbrake',
+        'notifier_version' => AIRBRAKE_NOTIFIER_VERSION,
+        'os' => PHP_OS,
+        'language' => "PHP" . PHP_VERSION
+    ];
 
     public function __construct($projectId)
     {
@@ -34,7 +40,11 @@ class RemoteConfig
     private function fetchConfig()
     {
         try {
-            $response = $this->httpClient->request('GET', $this->remoteConfigURL);
+            $response = $this->httpClient->request(
+                'GET',
+                $this->remoteConfigURL,
+                ['query' => $this->notifierInfo]
+            );
         } catch (\Exception $e) {
             unset($e); // $e is not used.
             return $this->defaultConfig;

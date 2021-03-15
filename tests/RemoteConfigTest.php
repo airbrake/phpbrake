@@ -18,6 +18,12 @@ class RemoteConfigTest extends TestCase
         "host" => 'api.airbrake.io',
         "enabled" => true
     ];
+    private $notifierInfo = [
+        'notifier_name' => 'phpbrake',
+        'notifier_version' => AIRBRAKE_NOTIFIER_VERSION,
+        'os' => PHP_OS,
+        'language' => "PHP" . PHP_VERSION
+    ];
 
     protected function setUp()
     {
@@ -156,7 +162,11 @@ class RemoteConfigTest extends TestCase
         $mockClient
             ->expects($this->once())
             ->method('request')
-            ->with('GET', $this->remoteConfigURL)
+            ->with(
+                'GET',
+                $this->remoteConfigURL,
+                ['query' => $this->notifierInfo]
+            )
             ->willReturn($mockResponse);
         return $mockClient;
     }
