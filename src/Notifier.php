@@ -10,6 +10,7 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
+define('ERR_NOTIFICATIONS_DISABLED', 'phpbrake: error notifications are disabled');
 
 const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
 
@@ -314,6 +315,11 @@ class Notifier
             return $notice;
         }
 
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
+            return $notice;
+        }
+
         $req = $this->newHttpRequest($notice);
         $resp = $this->sendRequest($req);
         return $this->processHttpResponse($notice, $resp);
@@ -421,6 +427,11 @@ class Notifier
 
         if (time() < $this->rateLimitReset) {
             $notice['error'] = ERR_IP_RATE_LIMITED;
+            return $notice;
+        }
+
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
             return $notice;
         }
 
@@ -536,15 +547,24 @@ class Notifier
         if (isset($this->opt['host'])) {
             return $this->opt['host'];
         } else {
-            return $this->remoteConfigErrorHost();
+            return $this->remoteErrorConfig()['host'];
         }
     }
 
-    protected function remoteConfigErrorHost()
+    protected function errorNotifications()
     {
+        return $this->remoteErrorConfig()['enabled'];
+    }
+
+    protected function remoteErrorConfig()
+    {
+        if (isset($this->errorConfig)) {
+            return $this->errorConfig;
+        }
+
         $remoteConfig = new RemoteConfig($this->opt['projectId']);
         $this->errorConfig = $remoteConfig->errorConfig();
-        return $this->errorConfig['host'];
+        return $this->errorConfig;
     }
 
     private function filterKeys(array &$arr, array $keysBlocklist)
