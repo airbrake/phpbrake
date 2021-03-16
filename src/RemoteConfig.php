@@ -29,7 +29,18 @@ class RemoteConfig
 
     public function errorConfig()
     {
-        return $this->fetchConfig();
+        if (!$this->cachingNotPossible()) {
+            return $this->defaultConfig;
+        }
+
+        if ($this->isCached()) {
+            $config = $this->getCachedConfig();
+        } else {
+            $config = $this->fetchConfig();
+            $this->writeConfigToCache($config);
+        }
+
+        return $this->parseErrorConfig($config);
     }
 
     /**
@@ -57,7 +68,7 @@ class RemoteConfig
         $body = $response->getBody();
         $config = json_decode($body, true);
 
-        return $this->parseErrorConfig($config);
+        return $config;
     }
 
     private function parseErrorConfig($config)
@@ -106,5 +117,76 @@ class RemoteConfig
                 'timeout' => 2,
             ]
         );
+    }
+
+    // Check if it's not possible to write the cache file to the system temp dir.
+    protected function cachingNotPossible()
+    {
+        $file = $this->cacheFile();
+        return is_writeable(dirname($file));
+    }
+
+    protected function isCached()
+    {
+        $file = $this->cacheFile();
+        if (!is_file($file)) {
+            return false;
+        }
+
+        $expiration_time = filemtime($file) + $this->cacheTTL();
+        $cacheAlive = time() < $expiration_time;
+        return $cacheAlive;
+    }
+
+    protected function getCachedConfig()
+    {
+        $use_associative_arrays = true;
+
+
+        try {
+            $value = file_get_contents($this->cacheFile());
+            if ($value === false) {
+                return null;
+            }
+
+            $config = json_decode($value, $use_associative_arrays);
+            return $config;
+        } catch (Exception $e) {
+            unset($e);
+            return null;
+        }
+    }
+
+    protected function writeConfigToCache($config)
+    {
+        try {
+            $wroteToFile = file_put_contents(
+                $this->cacheFile(),
+                json_encode($config),
+                LOCK_EX
+            );
+
+            if ($wroteToFile === false) {
+                return null;
+            }
+        } catch (Exception $e) {
+            unset($e);
+            return null;
+        }
+    }
+
+    protected function remoteConfigCache()
+    {
+        return sys_get_temp_dir() . "/" . $this->cacheFile();
+    }
+
+    protected function cacheFile()
+    {
+        return sys_get_temp_dir() . '/' . 'airbrake_cached_remote_config.json';
+    }
+
+    protected function cacheTTL()
+    {
+        return 600; // Fetch a new remote config every 10 minutes.
     }
 }

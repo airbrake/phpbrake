@@ -15,4 +15,15 @@ class RemoteConfigMock extends RemoteConfig
     {
         $this->httpClient = $mockClient;
     }
+
+    protected function writeConfigToCache($config)
+    {
+        // Don't write to the cache in the tests.
+    }
+
+    protected function isCached()
+    {
+        // Don't try to read from the cache in the tests.
+        return false;
+    }
 }
