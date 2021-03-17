@@ -33,8 +33,11 @@ class NotifierMock extends Notifier
         return new FulfilledPromise($this->resp);
     }
 
-    protected function remoteConfigErrorHost()
+    protected function remoteErrorConfig()
     {
-        return 'api.airbrake.io';
+        return [
+            'host' => 'api.airbrake.io',
+            'enabled' => true
+        ];
     }
 }

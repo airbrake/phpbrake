@@ -6,24 +6,19 @@ use Airbrake\RemoteConfig;
 
 class RemoteConfigMock extends RemoteConfig
 {
+    public $tempCache;
+
     public function __construct($projectId)
     {
         parent::__construct($projectId);
+        $this->tempCache = new TempCacheMock(
+            $this->tempCacheFilename,
+            $this->tempCacheTTL
+        );
     }
 
     public function setMockClient($mockClient)
     {
         $this->httpClient = $mockClient;
-    }
-
-    protected function writeConfigToCache($config)
-    {
-        // Don't write to the cache in the tests.
-    }
-
-    protected function isCached()
-    {
-        // Don't try to read from the cache in the tests.
-        return false;
     }
 }

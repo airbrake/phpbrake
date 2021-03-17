@@ -18,7 +18,8 @@
   "require-dev": {
     "phpunit/phpunit": "^5.7",
     "squizlabs/php_codesniffer": "^2.9",
-    "monolog/monolog": "^1.22|^2.0"
+    "monolog/monolog": "^1.22|^2.0",
+    "mikey179/vfsstream": "^1.6"
   },
   "suggest": {
     "guzzlehttp/guzzle": "Guzzle HTTP client"

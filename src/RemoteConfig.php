@@ -8,6 +8,9 @@ class RemoteConfig
 {
     protected $remoteConfigURL;
     protected $httpClient;
+    protected $tempCache;
+    protected $tempCacheFilename = 'airbrake_cached_remote_config.json';
+    protected $tempCacheTTL = 600;
     private $defaultConfig = [
         "host" => 'api.airbrake.io',
         "enabled" => true
@@ -25,22 +28,34 @@ class RemoteConfig
     {
         $this->remoteConfigURL = $this->buildRemoteUrl($projectId);
         $this->httpClient = $this->newHTTPClient();
+        $this->tempCache = $this->newTempCache();
     }
 
     public function errorConfig()
     {
-        if (!$this->cachingNotPossible()) {
+        $config = $this->getConfigFromCacheOrFetch();
+        return $this->parseErrorConfig($config);
+    }
+
+    private function getConfigFromCacheOrFetch()
+    {
+        try {
+            if ($this->tempCache->canWrite() == false) {
+                return $this->defaultConfig;
+            }
+
+            if ($this->tempCache->expired()) {
+                $config = $this->fetchConfig();
+                $this->tempCache->write($config);
+            } else {
+                $config = $this->tempCache->read();
+            }
+        } catch (\Exception $e) {
+            unset($e); // $e is not used.
             return $this->defaultConfig;
         }
 
-        if ($this->isCached()) {
-            $config = $this->getCachedConfig();
-        } else {
-            $config = $this->fetchConfig();
-            $this->writeConfigToCache($config);
-        }
-
-        return $this->parseErrorConfig($config);
+        return $config;
     }
 
     /**
@@ -73,9 +88,8 @@ class RemoteConfig
 
     private function parseErrorConfig($config)
     {
-        $array_not_found = is_array($config) == false;
-        $config_not_found = array_key_exists("settings", $config) == false;
-        if ($array_not_found || $config_not_found) {
+        $config_not_found = array_key_exists("settings", (array) $config) == false;
+        if ($config_not_found) {
             return $this->defaultConfig;
         }
 
@@ -119,74 +133,11 @@ class RemoteConfig
         );
     }
 
-    // Check if it's not possible to write the cache file to the system temp dir.
-    protected function cachingNotPossible()
+    protected function newTempCache()
     {
-        $file = $this->cacheFile();
-        return is_writeable(dirname($file));
-    }
-
-    protected function isCached()
-    {
-        $file = $this->cacheFile();
-        if (!is_file($file)) {
-            return false;
-        }
-
-        $expiration_time = filemtime($file) + $this->cacheTTL();
-        $cacheAlive = time() < $expiration_time;
-        return $cacheAlive;
-    }
-
-    protected function getCachedConfig()
-    {
-        $use_associative_arrays = true;
-
-
-        try {
-            $value = file_get_contents($this->cacheFile());
-            if ($value === false) {
-                return null;
-            }
-
-            $config = json_decode($value, $use_associative_arrays);
-            return $config;
-        } catch (Exception $e) {
-            unset($e);
-            return null;
-        }
-    }
-
-    protected function writeConfigToCache($config)
-    {
-        try {
-            $wroteToFile = file_put_contents(
-                $this->cacheFile(),
-                json_encode($config),
-                LOCK_EX
-            );
-
-            if ($wroteToFile === false) {
-                return null;
-            }
-        } catch (Exception $e) {
-            unset($e);
-            return null;
-        }
-    }
-
-    protected function remoteConfigCache()
-    {
-        return sys_get_temp_dir() . "/" . $this->cacheFile();
-    }
-
-    protected function cacheFile()
-    {
-        return sys_get_temp_dir() . '/' . 'airbrake_cached_remote_config.json';
-    }
-
-    protected function cacheTTL()
-    {
-        return 600; // Fetch a new remote config every 10 minutes.
+        return new TempCache(
+            $this->tempCacheFilename,
+            $this->tempCacheTTL
+        );
     }
 }

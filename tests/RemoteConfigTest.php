@@ -3,7 +3,6 @@
 namespace Airbrake\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Airbrake\RemoteConfig;
 use GuzzleHttp\Client;
 
 class RemoteConfigTest extends TestCase
@@ -135,6 +134,58 @@ class RemoteConfigTest extends TestCase
         $this->returnsTheDefaultConfig();
     }
 
+    public function testConfiguredWithExpectedCacheSettings()
+    {
+        $this->assertSame(
+            'airbrake_cached_remote_config.json',
+            $this->remoteConfig->tempCache->filename
+        );
+        $this->assertSame(600, $this->remoteConfig->tempCache->ttl);
+    }
+
+    public function testCannotWriteCache()
+    {
+        $this->remoteConfig->tempCache->mockCanWrite = false;
+
+        $this->remoteConfig->errorConfig();
+
+        $didNotReadFromCache = !$this->remoteConfig->tempCache->wasRead;
+        $didNotWriteToCache = !$this->remoteConfig->tempCache->wasWritten;
+        $this->assertTrue($didNotReadFromCache);
+        $this->assertTrue($didNotWriteToCache);
+        $this->returnsTheDefaultConfig();
+    }
+
+    public function testReadsFromCacheWhenNotExpired()
+    {
+        $this->remoteConfig->tempCache->mockCanWrite = true;
+        // write config to the cache
+        $this->remoteConfig->errorConfig();
+
+        $this->remoteConfig->tempCache->mockExpired = false;
+        // read config from cache
+        $config = $this->remoteConfig->errorConfig();
+
+        $this->assertTrue($this->remoteConfig->tempCache->wasRead);
+        $this->assertSame(
+            $this->remoteConfig->tempCache->lastReadValue,
+            $config
+        );
+    }
+
+    public function testWritesToCacheWhenExpired()
+    {
+        $this->remoteConfig->tempCache->mockCanWrite = true;
+        $this->remoteConfig->tempCache->mockExpired = true;
+
+        $config = $this->remoteConfig->errorConfig();
+
+        $this->assertTrue($this->remoteConfig->tempCache->wasWritten);
+        $this->assertSame(
+            $this->remoteConfig->tempCache->lastWrittenValue,
+            $config
+        );
+    }
     // RemoteConfigTest helpers for mocking and asserting when the default
     // config is returned.
 
