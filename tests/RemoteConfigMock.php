@@ -21,4 +21,23 @@ class RemoteConfigMock extends RemoteConfig
     {
         $this->httpClient = $mockClient;
     }
+
+    public function errorConfig()
+    {
+        if (isset($this->mockErrorConfig)) {
+            return $this->mockErrorConfig;
+        }
+
+        return parent::errorConfig();
+    }
+
+    // This is a helper function to mock the return value of the
+    // errorConfig method.
+    public function mockErrorConfig($host = "api.airbrake.io", $enabled = true)
+    {
+        $this->mockErrorConfig = [
+            "host" => $host,
+            "enabled" => $enabled
+        ];
+    }
 }

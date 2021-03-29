@@ -29,7 +29,7 @@ class Notifier
     /**
      * @var array
      */
-    private $opt;
+    protected $opt;
 
     /**
      * @var callable[]
@@ -49,7 +49,6 @@ class Notifier
 
     private $codeHunk;
     private $context;
-    private $errorConfig;
 
     /**
      * Constructor
@@ -64,6 +63,7 @@ class Notifier
      *  - rootDirectory
      *  - keysBlocklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface
+     *  - remoteConfig  fetch the notifier config from the remote. (true/false)
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -79,6 +79,10 @@ class Notifier
                 'phpbrake: keysBlacklist is a deprecated option. Use keysBlocklist instead.'
             );
             $opt['keysBlocklist'] = $opt['keysBlacklist'];
+        }
+
+        if (empty($opt['remoteConfig'])) {
+            $opt['remoteConfig'] = true;
         }
 
         $this->opt = array_merge(
@@ -558,13 +562,19 @@ class Notifier
 
     protected function remoteErrorConfig()
     {
-        if (isset($this->errorConfig)) {
-            return $this->errorConfig;
+        if ($this->opt['remoteConfig'] == false) {
+            return RemoteConfig::DEFAULT_CONFIG;
         }
 
-        $remoteConfig = new RemoteConfig($this->opt['projectId']);
+        $remoteConfig = $this->newRemoteConfig($this->opt['projectId']);
         $this->errorConfig = $remoteConfig->errorConfig();
         return $this->errorConfig;
+    }
+
+    protected function newRemoteConfig($projectId)
+    {
+        $remoteConfig = new RemoteConfig($projectId);
+        return $remoteConfig;
     }
 
     private function filterKeys(array &$arr, array $keysBlocklist)
