@@ -13,10 +13,6 @@ class RemoteConfigTest extends TestCase
     private $remoteConfig;
     private $remoteErrorConfig;
     private $responseBody;
-    private $defaultConfig = [
-        "host" => 'api.airbrake.io',
-        "enabled" => true
-    ];
     private $notifierInfo = [
         'notifier_name' => 'phpbrake',
         'notifier_version' => AIRBRAKE_NOTIFIER_VERSION,
@@ -74,7 +70,7 @@ class RemoteConfigTest extends TestCase
         $this->assertSame(
             $this->remoteConfig->errorConfig(),
             [
-                "host" => $this->defaultConfig['host'],
+                "host" => $this->remoteConfig::DEFAULT_CONFIG['host'],
                 "enabled" => true
             ]
         );
@@ -193,7 +189,7 @@ class RemoteConfigTest extends TestCase
     {
         $this->assertSame(
             $this->remoteConfig->errorConfig(),
-            $this->defaultConfig
+            $this->remoteConfig::DEFAULT_CONFIG
         );
     }
 
