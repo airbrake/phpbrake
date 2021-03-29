@@ -6,15 +6,15 @@ use GuzzleHttp\Client;
 
 class RemoteConfig
 {
+    const DEFAULT_CONFIG = [
+        "host" => 'api.airbrake.io',
+        "enabled" => true
+    ];
     protected $remoteConfigURL;
     protected $httpClient;
     protected $tempCache;
     protected $tempCacheFilename = 'airbrake_cached_remote_config.json';
     protected $tempCacheTTL = 600;
-    private $defaultConfig = [
-        "host" => 'api.airbrake.io',
-        "enabled" => true
-    ];
     private $remoteConfigURLFormatString = 'https://notifier-configs.airbrake.io' .
         '/2020-06-18/config/%d/config.json';
     private $notifierInfo = [
@@ -41,7 +41,7 @@ class RemoteConfig
     {
         try {
             if ($this->tempCache->canWrite() == false) {
-                return $this->defaultConfig;
+                return self::DEFAULT_CONFIG;
             }
 
             if ($this->tempCache->expired()) {
@@ -52,7 +52,7 @@ class RemoteConfig
             }
         } catch (\Exception $e) {
             unset($e); // $e is not used.
-            return $this->defaultConfig;
+            return self::DEFAULT_CONFIG;
         }
 
         return $config;
@@ -73,11 +73,11 @@ class RemoteConfig
             );
         } catch (\Exception $e) {
             unset($e); // $e is not used.
-            return $this->defaultConfig;
+            return self::DEFAULT_CONFIG;
         }
 
         if ($response->getStatusCode() != 200) {
-            return $this->defaultConfig;
+            return self::DEFAULT_CONFIG;
         }
 
         $body = $response->getBody();
@@ -90,7 +90,7 @@ class RemoteConfig
     {
         $config_not_found = array_key_exists("settings", (array) $config) == false;
         if ($config_not_found) {
-            return $this->defaultConfig;
+            return self::DEFAULT_CONFIG;
         }
 
         foreach ($config['settings'] as $cfg) {
@@ -102,13 +102,13 @@ class RemoteConfig
         if (isset($errorConfig['endpoint'])) {
             $host = $errorConfig['endpoint'];
         } else {
-            $host = $this->defaultConfig['host'];
+            $host = self::DEFAULT_CONFIG['host'];
         }
 
         if (isset($errorConfig['enabled'])) {
             $enabled = $errorConfig['enabled'];
         } else {
-            $enabled = $this->defaultConfig['enabled'];
+            $enabled = self::DEFAULT_CONFIG['enabled'];
         }
 
         return array("host" => $host, "enabled" => $enabled);

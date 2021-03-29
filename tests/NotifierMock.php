@@ -10,6 +10,7 @@ class NotifierMock extends Notifier
     public $url;
     public $notice;
     public $resp;
+    public $remoteConfigMock;
 
     public function __construct($opt)
     {
@@ -33,11 +34,19 @@ class NotifierMock extends Notifier
         return new FulfilledPromise($this->resp);
     }
 
-    protected function remoteErrorConfig()
+    protected function newRemoteConfig($projectId)
     {
-        return [
-            'host' => 'api.airbrake.io',
-            'enabled' => true
-        ];
+        if (isset($this->remoteConfigMock)) {
+            return $this->remoteConfigMock;
+        }
+
+        $remoteConfigMock = new RemoteConfigMock($projectId);
+        $remoteConfigMock->mockErrorConfig();
+        return $remoteConfigMock;
+    }
+
+    public function setupRemoteConfigMock()
+    {
+        $this->remoteConfigMock = $this->newRemoteConfig($this->opt['projectId']);
     }
 }
