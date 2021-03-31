@@ -22,11 +22,6 @@ class Notifier
     private static $instanceCount = 0;
 
     /**
-     * @var string
-     */
-    protected $noticesURL;
-
-    /**
      * @var array
      */
     protected $opt;
@@ -91,7 +86,6 @@ class Notifier
         );
 
         $this->httpClient = $this->newHTTPClient();
-        $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
         $this->context = $this->buildContext();
 
@@ -349,8 +343,12 @@ class Notifier
             'Authorization' => 'Bearer ' . $this->opt['projectKey'],
         ];
         $body = json_encode($notice);
-        $this->noticesURL = $this->buildNoticesURL();
-        return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
+        return new \GuzzleHttp\Psr7\Request(
+            'POST',
+            $this->buildNoticesURL(),
+            $headers,
+            $body
+        );
     }
 
     protected function sendRequest($req)
