@@ -573,8 +573,7 @@ class Notifier
 
     protected function newRemoteConfig($projectId)
     {
-        $remoteConfig = new RemoteConfig($projectId);
-        return $remoteConfig;
+        return new RemoteConfig($projectId);
     }
 
     private function filterKeys(array &$arr, array $keysBlocklist)
