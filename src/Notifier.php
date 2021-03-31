@@ -562,7 +562,7 @@ class Notifier
 
     protected function remoteErrorConfig()
     {
-        if ($this->opt['remoteConfig'] == false) {
+        if (!$this->opt['remoteConfig']) {
             return RemoteConfig::DEFAULT_CONFIG;
         }
 
