@@ -40,7 +40,7 @@ class RemoteConfig
     private function getConfigFromCacheOrFetch()
     {
         try {
-            if ($this->tempCache->canWrite() == false) {
+            if (!$this->tempCache->canWrite()) {
                 return self::DEFAULT_CONFIG;
             }
 
