@@ -96,6 +96,7 @@ class RemoteConfig
         foreach ($config['settings'] as $cfg) {
             if (isset($cfg["name"]) && $cfg["name"] == "errors") {
                 $errorConfig = $cfg;
+                break;
             }
         };
 
