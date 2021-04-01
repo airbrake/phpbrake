@@ -2,8 +2,8 @@
 
 namespace Airbrake\Tests;
 
-// Update version across all tests in a single location.
-const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
+use Airbrake;
+const AIRBRAKE_NOTIFIER_VERSION = Airbrake\AIRBRAKE_NOTIFIER_VERSION;
 
 use PHPUnit_Framework_TestCase;
 
