@@ -88,8 +88,8 @@ class RemoteConfig
 
     private function parseErrorConfig($config)
     {
-        $config_not_found = array_key_exists("settings", (array) $config) == false;
-        if ($config_not_found) {
+        $config_found = array_key_exists("settings", (array) $config);
+        if (!$config_found) {
             return self::DEFAULT_CONFIG;
         }
 
