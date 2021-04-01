@@ -127,9 +127,9 @@ class RemoteConfig
     {
         return new Client(
             [
-                'connect_timeout' => 2,
-                'read_timeout' => 2,
-                'timeout' => 2,
+                'connect_timeout' => 10,
+                'read_timeout' => 10,
+                'timeout' => 10,
             ]
         );
     }
