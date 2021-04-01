@@ -93,9 +93,9 @@ class RemoteConfig
             return self::DEFAULT_CONFIG;
         }
 
-        foreach ($config['settings'] as $cfg) {
-            if (isset($cfg["name"]) && $cfg["name"] == "errors") {
-                $errorConfig = $cfg;
+        foreach ($config['settings'] as $s) {
+            if (isset($s["name"]) && $s["name"] == "errors") {
+                $errorConfig = $s;
                 break;
             }
         };
