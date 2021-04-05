@@ -564,6 +564,10 @@ class Notifier
             return RemoteConfig::DEFAULT_CONFIG;
         }
 
+        if (isset($this->errorConfig)) {
+            return $this->errorConfig;
+        }
+
         $remoteConfig = $this->newRemoteConfig($this->opt['projectId']);
         $this->errorConfig = $remoteConfig->errorConfig();
         return $this->errorConfig;
