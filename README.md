@@ -8,7 +8,7 @@
 
 ## Features
 PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
-PHPBrake supports PHP 5.4 and higher. PHPBrake includes many useful features 
+PHPBrake supports PHP 5.4 and higher. PHPBrake includes many useful features
 that give you control over when and what you send to Airbrake, you can:
 
 - [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
@@ -187,6 +187,26 @@ $notifier = new Airbrake\Notifier([
     // ...
 ]);
 ```
+
+### remoteConfig
+
+Configures the remote configuration feature. Every 10 minutes the notifier
+will make a GET request to Airbrake servers to fetching a JSON document
+containing configuration settings for your project. The notifier will apply
+these new settings at runtime. By default, it is enabled.
+
+To disable this feature, configure your notifier with:
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'remoteConfig' => false,
+    // ...
+]);
+```
+
+Note: it is not recommended to disable this feature. It might negatively impact
+how your notifier works. Please use this option with caution.
 
 ### rootDirectory
 
