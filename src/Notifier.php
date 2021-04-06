@@ -10,7 +10,9 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
+define('ERR_NOTIFICATIONS_DISABLED', 'phpbrake: error notifications are disabled');
 
+const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
 
 /**
  * Airbrake exception notifier.
@@ -20,14 +22,9 @@ class Notifier
     private static $instanceCount = 0;
 
     /**
-     * @var string
-     */
-    protected $noticesURL;
-
-    /**
      * @var array
      */
-    private $opt;
+    protected $opt;
 
     /**
      * @var callable[]
@@ -61,6 +58,7 @@ class Notifier
      *  - rootDirectory
      *  - keysBlocklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface
+     *  - remoteConfig  fetch the notifier config from the remote. (true/false)
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -78,13 +76,16 @@ class Notifier
             $opt['keysBlocklist'] = $opt['keysBlacklist'];
         }
 
-        $this->opt = array_merge([
-          'host' => 'api.airbrake.io',
-          'keysBlocklist' => ['/password/i', '/secret/i'],
-        ], $opt);
+        if (empty($opt['remoteConfig'])) {
+            $opt['remoteConfig'] = true;
+        }
+
+        $this->opt = array_merge(
+            [ 'keysBlocklist' => ['/password/i', '/secret/i'] ],
+            $opt
+        );
 
         $this->httpClient = $this->newHTTPClient();
-        $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
         $this->context = $this->buildContext();
 
@@ -111,7 +112,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.7.5',
+                'version' => AIRBRAKE_NOTIFIER_VERSION,
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
@@ -312,6 +313,11 @@ class Notifier
             return $notice;
         }
 
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
+            return $notice;
+        }
+
         $req = $this->newHttpRequest($notice);
         $resp = $this->sendRequest($req);
         return $this->processHttpResponse($notice, $resp);
@@ -337,7 +343,12 @@ class Notifier
             'Authorization' => 'Bearer ' . $this->opt['projectKey'],
         ];
         $body = json_encode($notice);
-        return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
+        return new \GuzzleHttp\Psr7\Request(
+            'POST',
+            $this->buildNoticesURL(),
+            $headers,
+            $body
+        );
     }
 
     protected function sendRequest($req)
@@ -421,6 +432,11 @@ class Notifier
             return $notice;
         }
 
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
+            return $notice;
+        }
+
         $req = $this->newHttpRequest($notice);
         $sendPromise = $this->sendRequestAsync($req);
 
@@ -457,7 +473,7 @@ class Notifier
      */
     protected function buildNoticesURL()
     {
-        $schemeAndHost = $this->opt['host'];
+        $schemeAndHost = $this->errorHost();
         if (!preg_match('~^https?://~i', $schemeAndHost)) {
             $schemeAndHost = "https://$schemeAndHost";
         }
@@ -526,6 +542,40 @@ class Notifier
         }
 
         return null;
+    }
+
+    protected function errorHost()
+    {
+        if (isset($this->opt['host'])) {
+            return $this->opt['host'];
+        } else {
+            return $this->remoteErrorConfig()['host'];
+        }
+    }
+
+    protected function errorNotifications()
+    {
+        return $this->remoteErrorConfig()['enabled'];
+    }
+
+    protected function remoteErrorConfig()
+    {
+        if (!$this->opt['remoteConfig']) {
+            return RemoteConfig::DEFAULT_CONFIG;
+        }
+
+        if (isset($this->errorConfig)) {
+            return $this->errorConfig;
+        }
+
+        $remoteConfig = $this->newRemoteConfig($this->opt['projectId']);
+        $this->errorConfig = $remoteConfig->errorConfig();
+        return $this->errorConfig;
+    }
+
+    protected function newRemoteConfig($projectId)
+    {
+        return new RemoteConfig($projectId);
     }
 
     private function filterKeys(array &$arr, array $keysBlocklist)

@@ -2,6 +2,9 @@
 
 namespace Airbrake\Tests;
 
+use Airbrake;
+const AIRBRAKE_NOTIFIER_VERSION = Airbrake\AIRBRAKE_NOTIFIER_VERSION;
+
 use PHPUnit_Framework_TestCase;
 
 class NotifierTest extends PHPUnit_Framework_TestCase
@@ -124,6 +127,37 @@ class NotifierTest extends PHPUnit_Framework_TestCase
             'The root dir is filtered from the backtrace'
         );
         $this->assertArrayHasKey('revision', $notifier->notice['context']);
+    }
+
+    public function testRemoteConfigOptionDefaut()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 42,
+            'projectKey' => 'api_key'
+        ]);
+        $notifier->setupRemoteConfigMock();
+        $notifier->remoteConfigMock->mockErrorConfig('remote.airbrake.io');
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals(
+            $notifier->url,
+            "https://remote.airbrake.io/api/v3/projects/42/notices",
+            'The notice url is from the remote config'
+        );
+    }
+
+    public function testRemoteConfigOptionDisabled()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 42,
+            'projectKey' => 'api_key',
+            'remoteConfig' => false,
+        ]);
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals(
+            $notifier->url,
+            "https://api.airbrake.io/api/v3/projects/42/notices",
+            'The notice url is not from the remote config'
+        );
     }
 
     /** @dataProvider errorResponseProvider */
