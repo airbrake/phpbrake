@@ -12,7 +12,7 @@ define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong'
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 define('ERR_NOTIFICATIONS_DISABLED', 'phpbrake: error notifications are disabled');
 
-const AIRBRAKE_NOTIFIER_VERSION = '0.7.5';
+const AIRBRAKE_NOTIFIER_VERSION = '0.8.0';
 
 /**
  * Airbrake exception notifier.
