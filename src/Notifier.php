@@ -319,7 +319,13 @@ class Notifier
         }
 
         $req = $this->newHttpRequest($notice);
-        $resp = $this->sendRequest($req);
+        try {
+            $resp = $this->sendRequest($req);
+        } catch (\Exception $e) {
+            // Not all exceptions are handled when 'http_errors' => false. Timeouts for example. We ignore these in general.
+            $notice['error'] = 'http send failed: ' . $e->getMessage();
+            return $notice;
+        }
         return $this->processHttpResponse($notice, $resp);
     }
 
