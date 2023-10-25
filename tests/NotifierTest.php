@@ -3,11 +3,11 @@
 namespace Airbrake\Tests;
 
 use Airbrake;
-const AIRBRAKE_NOTIFIER_VERSION = Airbrake\AIRBRAKE_NOTIFIER_VERSION;
+use Airbrake\Exception;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class NotifierTest extends PHPUnit_Framework_TestCase
+class NotifierTest extends TestCase
 {
     use ChecksForException;
 
@@ -83,27 +83,21 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         ]];
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testEmptyOptions()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock([]);
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testNoProjectKey()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock(['projectId' => 42]);
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testNoProjectId()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock(['projectKey' => 'some-key']);
     }
 
