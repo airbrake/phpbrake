@@ -5,6 +5,8 @@ use PHPUnit\Framework\TestCase;
 
 class MonologHandlerTest extends TestCase
 {
+    private NotifierMock $notifier;
+
     public function setUp(): void
     {
         $this->notifier = new NotifierMock([

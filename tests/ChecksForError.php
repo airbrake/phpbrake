@@ -9,14 +9,15 @@ trait ChecksForError
     {
         $notice = $notifier->notice;
         $error = $notice['errors'][0];
-        $this->assertEquals('E_NOTICE', $error['type']);
-        $this->assertEquals('Undefined variable: undefinedVar', $error['message']);
+        $this->assertEquals('E_WARNING', $error['type']);
+        $this->assertEquals('Undefined variable $undefinedVar', $error['message']);
     }
 
     /** @dataProvider undefinedVarErrorProvider */
     public function testPostsErrorBacktrace($notifier)
     {
         $backtrace = $notifier->notice['errors'][0]['backtrace'];
+        $this->assertCount(21, $backtrace);
 
         $wanted = [[
             'file' => dirname(dirname(__FILE__)).'/tests/Troublemaker.php',

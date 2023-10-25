@@ -12,8 +12,6 @@ define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong'
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
 define('ERR_NOTIFICATIONS_DISABLED', 'phpbrake: error notifications are disabled');
 
-const AIRBRAKE_NOTIFIER_VERSION = '0.8.0';
-
 /**
  * Airbrake exception notifier.
  */
@@ -25,6 +23,11 @@ class Notifier
      * @var array
      */
     protected $opt;
+
+    /**
+     * @var array
+     */
+    private $errorConfig;
 
     /**
      * @var callable[]
@@ -564,7 +567,7 @@ class Notifier
             return RemoteConfig::DEFAULT_CONFIG;
         }
 
-        if (isset($this->errorConfig)) {
+        if ($this->errorConfig !== null) {
             return $this->errorConfig;
         }
 
