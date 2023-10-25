@@ -76,7 +76,7 @@ class Notifier
             $opt['keysBlocklist'] = $opt['keysBlacklist'];
         }
 
-        if (empty($opt['remoteConfig'])) {
+        if (!isset($opt['remoteConfig'])) {
             $opt['remoteConfig'] = true;
         }
 
