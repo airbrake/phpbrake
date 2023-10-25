@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 class TempCacheTest extends TestCase
 {
     private $cachedValue = ['key' => 'value'];
+    private $tempCache;
 
     protected function setUp(): void
     {
