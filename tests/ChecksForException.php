@@ -17,7 +17,7 @@ trait ChecksForException
     public function testPostsExceptionBacktrace($notifier)
     {
         $backtrace = $notifier->notice['errors'][0]['backtrace'];
-        $this->assertCount(20, $backtrace);
+        $this->assertCount(18, $backtrace);
 
         $wanted = [[
             'file' => dirname(dirname(__FILE__)).'/tests/Troublemaker.php',
@@ -74,5 +74,5 @@ trait ChecksForException
         );
     }
 
-    abstract public function exceptionProvider();
+    abstract public static function exceptionProvider();
 }
