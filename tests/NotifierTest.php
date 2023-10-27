@@ -3,7 +3,6 @@
 namespace Airbrake\Tests;
 
 use Airbrake;
-use Airbrake\Exception;
 
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +10,7 @@ class NotifierTest extends TestCase
 {
     use ChecksForException;
 
-    public function newNotifier()
+    public static function newNotifier()
     {
         return new NotifierMock([
             'projectId' => 1,
@@ -19,9 +18,9 @@ class NotifierTest extends TestCase
         ]);
     }
 
-    public function exceptionProvider()
+    public static function exceptionProvider()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['HTTP_HOST'] = 'airbrake.io';
         $_SERVER['REQUEST_URI'] = '/hello';
         $notifier->notify(Troublemaker::newException());
@@ -31,14 +30,14 @@ class NotifierTest extends TestCase
 
     public function testNotify()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $resp = $notifier->notify(Troublemaker::newException());
         $this->assertEquals('12345', $resp['id']);
     }
 
     public function testNotifyAsync()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $promise = $notifier->notifyAsync(Troublemaker::newException());
         $notice = null;
         $promise->then(function ($r) use (&$notice) {
@@ -58,7 +57,7 @@ class NotifierTest extends TestCase
         $this->assertEquals($expectedUrl, $notifier->url, $comment);
     }
 
-    public function noticesHostExamples()
+    public static function noticesHostExamples()
     {
         $defaultOpt = [
             'projectId' => 42,
@@ -160,7 +159,7 @@ class NotifierTest extends TestCase
         $this->assertEquals($expectedErrorMessage, $notice['error']);
     }
 
-    public function errorResponseProvider()
+    public static function errorResponseProvider()
     {
         $notifier = new NotifierMock([
             'projectId' => 1,
@@ -181,7 +180,7 @@ class NotifierTest extends TestCase
 
     public function testContextUserAddr()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $notifier->notify(Troublemaker::newException());
 
@@ -193,7 +192,7 @@ class NotifierTest extends TestCase
 
     public function testContextUserAddrXForwardedFor()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '1.1.1.1, 2.2.2.2';
         $notifier->notify(Troublemaker::newException());
 
@@ -217,9 +216,9 @@ class NotifierTest extends TestCase
         ini_set('error_log', $saved);
         $errorLog = stream_get_contents($capture);
 
-        $deprecatationWarning = '/keysBlacklist is a deprecated option/';
+        $deprecationWarning = '/keysBlacklist is a deprecated option/';
 
-        $this->assertRegexp($deprecatationWarning, $errorLog);
+        $this->assertMatchesRegularExpression($deprecationWarning, $errorLog);
 
         $notice = $notifier->buildNotice(Troublemaker::newException());
         $notice['params'] = [
@@ -262,7 +261,7 @@ class NotifierTest extends TestCase
 
     public function testNestedException()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $exc = Troublemaker::newNestedException();
         $notifier->notify($exc);
 
@@ -297,7 +296,7 @@ class NotifierTest extends TestCase
 
     public function testPhpModulesAreSkipped()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $exc = new FakeTraceException();
         $exc->addFakeTrace(2, [
             'file' => 'newrelic/Guzzle6',
