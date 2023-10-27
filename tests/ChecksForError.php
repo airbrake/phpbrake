@@ -17,7 +17,7 @@ trait ChecksForError
     public function testPostsErrorBacktrace($notifier)
     {
         $backtrace = $notifier->notice['errors'][0]['backtrace'];
-        $this->assertCount(21, $backtrace);
+        $this->assertCount(19, $backtrace);
 
         $wanted = [[
             'file' => dirname(dirname(__FILE__)).'/tests/Troublemaker.php',
@@ -47,5 +47,5 @@ trait ChecksForError
         }
     }
 
-    abstract public function undefinedVarErrorProvider();
+    abstract public static function undefinedVarErrorProvider();
 }
