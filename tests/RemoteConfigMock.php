@@ -8,6 +8,11 @@ class RemoteConfigMock extends RemoteConfig
 {
     public $tempCache;
 
+    /**
+     * @var array
+     */
+    private $mockErrorConfig;
+
     public function __construct($projectId)
     {
         parent::__construct($projectId);

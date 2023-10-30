@@ -2,11 +2,11 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FilterTest extends PHPUnit_Framework_TestCase
+class FilterTest extends TestCase
 {
-    private function makeNotifierWithFilter(callable $filter)
+    private static function makeNotifierWithFilter(callable $filter)
     {
         $notifier = new NotifierMock([
             'projectId' => 1,
@@ -22,11 +22,11 @@ class FilterTest extends PHPUnit_Framework_TestCase
      */
     public function testNoticeIsIgnored($filter, $comment)
     {
-        $notifier = $this->makeNotifierWithFilter($filter);
+        $notifier = self::makeNotifierWithFilter($filter);
         $this->assertNull($notifier->notice, $comment);
     }
 
-    public function negativeFilterProvider()
+    public static function negativeFilterProvider()
     {
         return [
             [
@@ -60,9 +60,9 @@ class FilterTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(isset($notifier->notice['environment']));
     }
 
-    public function filterFullNotifierProvider()
+    public static function filterFullNotifierProvider()
     {
-        return [[$this->makeNotifierWithFilter(function () {
+        return [[self::makeNotifierWithFilter(function () {
             $notice['context']['environment'] = 'production';
             unset($notice['environment']);
 

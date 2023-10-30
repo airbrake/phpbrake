@@ -74,5 +74,5 @@ trait ChecksForException
         );
     }
 
-    abstract public function exceptionProvider();
+    abstract public static function exceptionProvider();
 }

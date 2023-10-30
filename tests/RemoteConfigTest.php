@@ -2,25 +2,20 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 class RemoteConfigTest extends TestCase
 {
     private $projectId = 555;
-    private $remoteConfigURL = 'https://notifier-configs.airbrake.io' .
-        '/2020-06-18/config/555/config.json';
     private $remoteConfig;
     private $remoteErrorConfig;
     private $responseBody;
-    private $notifierInfo = [
-        'notifier_name' => 'phpbrake',
-        'notifier_version' => AIRBRAKE_NOTIFIER_VERSION,
-        'os' => PHP_OS,
-        'language' => "PHP" . PHP_VERSION
-    ];
-
-    protected function setUp()
+    
+    protected function setUp(): void
     {
         $this->remoteConfig = new RemoteConfigMock($this->projectId);
         $this->remoteErrorConfig = [
@@ -119,9 +114,7 @@ class RemoteConfigTest extends TestCase
     public function testWhenTheRequestRaisesAnException()
     {
         $mockClient = $this
-            ->getMockBuilder(GuzzleHttp\Client::class)
-            ->setMethods(['request'])
-            ->getMock();
+            ->createMock(\GuzzleHttp\Client::class);
         $mockClient
             ->method('request')
             ->will($this->throwException(new \Exception));
@@ -154,32 +147,35 @@ class RemoteConfigTest extends TestCase
 
     public function testReadsFromCacheWhenNotExpired()
     {
+        $this->mockRemoteResponse(200, $this->responseBody);
         $this->remoteConfig->tempCache->mockCanWrite = true;
+
         // write config to the cache
         $this->remoteConfig->errorConfig();
-
         $this->remoteConfig->tempCache->mockExpired = false;
+        
         // read config from cache
-        $config = $this->remoteConfig->errorConfig();
+        $this->remoteConfig->errorConfig();
 
         $this->assertTrue($this->remoteConfig->tempCache->wasRead);
         $this->assertSame(
+            $this->responseBody,
             $this->remoteConfig->tempCache->lastReadValue,
-            $config
         );
     }
 
     public function testWritesToCacheWhenExpired()
     {
+        $this->mockRemoteResponse(200, $this->responseBody);
         $this->remoteConfig->tempCache->mockCanWrite = true;
         $this->remoteConfig->tempCache->mockExpired = true;
 
-        $config = $this->remoteConfig->errorConfig();
+        $this->remoteConfig->errorConfig();
 
         $this->assertTrue($this->remoteConfig->tempCache->wasWritten);
         $this->assertSame(
+            $this->responseBody,
             $this->remoteConfig->tempCache->lastWrittenValue,
-            $config
         );
     }
     // RemoteConfigTest helpers for mocking and asserting when the default
@@ -195,46 +191,12 @@ class RemoteConfigTest extends TestCase
 
     private function mockRemoteResponse($statusCode, $body)
     {
-        $mockResponse = $this->createMockResponse($statusCode, $body);
-        $mockClient = $this->createMockClient($mockResponse);
+        $handler = new MockHandler([
+            new Response($statusCode, [], json_encode($body))
+        ]);
+        $handlerStack = HandlerStack::create($handler);
+        $mockClient = new Client(['handler' => $handlerStack]);
+
         $this->remoteConfig->setMockClient($mockClient);
-    }
-
-    private function createMockClient($mockResponse)
-    {
-        $mockClient = $this
-            ->getMockBuilder(GuzzleHttp\Client::class)
-            ->setMethods(['request'])
-            ->getMock();
-        $mockClient
-            ->expects($this->once())
-            ->method('request')
-            ->with(
-                'GET',
-                $this->remoteConfigURL,
-                ['query' => $this->notifierInfo]
-            )
-            ->willReturn($mockResponse);
-        return $mockClient;
-    }
-
-    private function createMockResponse($statusCode, $body)
-    {
-        $mockResponse = $this
-            ->getMockBuilder(GuzzleHttp\Psr7\Response::class)
-            ->setMethods(['getStatusCode', 'getBody'])
-            ->getMock();
-        $mockResponse
-            ->expects($this->once())
-            ->method('getStatusCode')
-            ->willReturn($statusCode);
-        if (isset($body)) {
-            $mockResponse
-                ->expects($this->once())
-                ->method('getBody')
-                ->willReturn(json_encode($body));
-        }
-
-        return $mockResponse;
     }
 }

@@ -2,14 +2,14 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ErrorHandlerTest extends PHPUnit_Framework_TestCase
+class ErrorHandlerTest extends TestCase
 {
     use ChecksForError;
     use ChecksForException;
 
-    public function exceptionProvider()
+    public static function exceptionProvider()
     {
         $notifier = new NotifierMock([
             'projectId' => 1,
@@ -25,15 +25,15 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
         return [[$notifier]];
     }
 
-    public function undefinedVarErrorProvider()
+    public static function undefinedVarErrorProvider()
     {
         return [
-            [$this->arrangeOnErrorNotifier(), 'OnError'],
-            [$this->arrangeOnShutdownNotifier(), 'OnShutdown'],
+            [self::arrangeOnErrorNotifier(), 'OnError'],
+            [self::arrangeOnShutdownNotifier(), 'OnShutdown'],
         ];
     }
 
-    private function makeHandlerBoundNotifier()
+    private static function makeHandlerBoundNotifier()
     {
         $notifier = new NotifierMock([
             'projectId' => 1,
@@ -45,19 +45,19 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
         return [$notifier, $handler];
     }
 
-    private function arrangeOnErrorNotifier()
+    private static function arrangeOnErrorNotifier()
     {
         $saved = error_reporting(E_ALL | E_STRICT);
-        list($notifier, $handler) = $this->makeHandlerBoundNotifier();
+        list($notifier) = self::makeHandlerBoundNotifier();
         Troublemaker::echoUndefinedVar();
         error_reporting($saved);
 
         return $notifier;
     }
 
-    private function arrangeOnShutdownNotifier()
+    private static function arrangeOnShutdownNotifier()
     {
-        list($notifier, $handler) = $this->makeHandlerBoundNotifier();
+        list($notifier, $handler) = self::makeHandlerBoundNotifier();
         @Troublemaker::echoUndefinedVar();
         $handler->onShutdown();
 
