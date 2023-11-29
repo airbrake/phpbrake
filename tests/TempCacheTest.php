@@ -9,7 +9,7 @@ class TempCacheTest extends TestCase
 {
     private $cachedValue = ['key' => 'value'];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->tempCache = new TempCacheMock();
     }

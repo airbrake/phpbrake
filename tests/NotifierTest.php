@@ -5,9 +5,9 @@ namespace Airbrake\Tests;
 use Airbrake;
 const AIRBRAKE_NOTIFIER_VERSION = Airbrake\AIRBRAKE_NOTIFIER_VERSION;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class NotifierTest extends PHPUnit_Framework_TestCase
+class NotifierTest extends TestCase
 {
     use ChecksForException;
 

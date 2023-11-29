@@ -20,7 +20,7 @@ class RemoteConfigTest extends TestCase
         'language' => "PHP" . PHP_VERSION
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->remoteConfig = new RemoteConfigMock($this->projectId);
         $this->remoteErrorConfig = [
