@@ -1,0 +1,13 @@
+version: '3'
+services:
+  tests:
+    build: .
+    volumes:
+      - ./tests:/phpbrake/tests
+    # develop:
+    #   watch: 
+    #     - action: sync+restart
+    #       path: tests
+    #       target: /phpbrake/tests
+    #     - action: rebuild
+    #       path: composer.json
