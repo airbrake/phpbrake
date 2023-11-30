@@ -16,6 +16,7 @@
     "cash/lrucache": "^1.0"
   },
   "require-dev": {
+    "psy/psysh": "^0.11",
     "phpunit/phpunit": "^7.0",
     "spatie/phpunit-watcher": "^1.23",
     "squizlabs/php_codesniffer": "^2.9",
