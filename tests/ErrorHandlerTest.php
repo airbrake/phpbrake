@@ -2,9 +2,9 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ErrorHandlerTest extends PHPUnit_Framework_TestCase
+class ErrorHandlerTest extends TestCase
 {
     use ChecksForError;
     use ChecksForException;
@@ -47,20 +47,24 @@ class ErrorHandlerTest extends PHPUnit_Framework_TestCase
 
     private function arrangeOnErrorNotifier()
     {
-        $saved = error_reporting(E_ALL | E_STRICT);
+        $this->setErrorReportingLevel();
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         Troublemaker::echoUndefinedVar();
-        error_reporting($saved);
 
         return $notifier;
     }
 
     private function arrangeOnShutdownNotifier()
     {
+        $this->setErrorReportingLevel();
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         @Troublemaker::echoUndefinedVar();
         $handler->onShutdown();
 
         return $notifier;
+    }
+
+    private function setErrorReportingLevel() {
+      error_reporting(E_ALL | E_STRICT);
     }
 }

@@ -20,7 +20,7 @@ class RemoteConfigTest extends TestCase
         'language' => "PHP" . PHP_VERSION
     ];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->remoteConfig = new RemoteConfigMock($this->projectId);
         $this->remoteErrorConfig = [
@@ -164,8 +164,11 @@ class RemoteConfigTest extends TestCase
 
         $this->assertTrue($this->remoteConfig->tempCache->wasRead);
         $this->assertSame(
-            $this->remoteConfig->tempCache->lastReadValue,
-            $config
+          [
+            "host" => "api.airbrake.io", 
+            "enabled" => false
+          ],
+          $config
         );
     }
 
@@ -178,8 +181,11 @@ class RemoteConfigTest extends TestCase
 
         $this->assertTrue($this->remoteConfig->tempCache->wasWritten);
         $this->assertSame(
-            $this->remoteConfig->tempCache->lastWrittenValue,
-            $config
+          [
+            "host" => "api.airbrake.io", 
+            "enabled" => false
+          ],
+          $config
         );
     }
     // RemoteConfigTest helpers for mocking and asserting when the default

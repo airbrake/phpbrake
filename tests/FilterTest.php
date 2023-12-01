@@ -2,9 +2,9 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class FilterTest extends PHPUnit_Framework_TestCase
+class FilterTest extends TestCase
 {
     private function makeNotifierWithFilter(callable $filter)
     {
