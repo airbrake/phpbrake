@@ -47,20 +47,24 @@ class ErrorHandlerTest extends TestCase
 
     private function arrangeOnErrorNotifier()
     {
-        $saved = error_reporting(E_ALL | E_STRICT);
+        $this->setErrorReportingLevel();
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         Troublemaker::echoUndefinedVar();
-        error_reporting($saved);
 
         return $notifier;
     }
 
     private function arrangeOnShutdownNotifier()
     {
+        $this->setErrorReportingLevel();
         list($notifier, $handler) = $this->makeHandlerBoundNotifier();
         @Troublemaker::echoUndefinedVar();
         $handler->onShutdown();
 
         return $notifier;
+    }
+
+    private function setErrorReportingLevel() {
+      error_reporting(E_ALL | E_STRICT);
     }
 }

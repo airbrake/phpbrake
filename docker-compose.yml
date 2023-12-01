@@ -4,6 +4,7 @@ services:
     build: .
     volumes:
       - ./tests:/phpbrake/tests
+      - ./src:/phpbrake/src
   watch_tests:
     extends: tests
     command: ./vendor/bin/phpunit-watcher watch
