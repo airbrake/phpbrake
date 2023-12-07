@@ -268,6 +268,12 @@ $notifier = new Airbrake\Notifier([
 
 ## Running tests
 
+Run via docker:
+```
+docker compose run tests
+```
+
+Or run locally
 ```bash
 composer install
 vendor/bin/phpunit
