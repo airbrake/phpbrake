@@ -2,4 +2,4 @@
 
 namespace Airbrake;
 
-const AIRBRAKE_NOTIFIER_VERSION = '0.8.0';
+const AIRBRAKE_NOTIFIER_VERSION = '1.0.0';
