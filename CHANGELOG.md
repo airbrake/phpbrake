@@ -1,6 +1,12 @@
 Phpbrake Changelog
 ==================
 
+### [v1.0.0][v1.0.0] (Dev 6, 2023)
+
+* Require PHP version 8.2 or higher for version 1.0.0 
+  * https://github.com/airbrake/phpbrake/pull/125
+* Improved the development workflow of contribution with docker powered tests.
+
 ### [v0.8.0][v0.8.0] (Apr 5, 2021)
 
 * Added Remote Config feature to fetch project error configuration settings
@@ -40,3 +46,4 @@ Phpbrake Changelog
 [v0.7.4]: https://github.com/airbrake/phpbrake/releases/tag/v0.7.4
 [v0.7.5]: https://github.com/airbrake/phpbrake/releases/tag/v0.7.5
 [v0.8.0]: https://github.com/airbrake/phpbrake/releases/tag/v0.8.0
+[v1.0.0]: https://github.com/airbrake/phpbrake/releases/tag/v1.0.0
