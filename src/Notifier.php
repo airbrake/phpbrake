@@ -49,6 +49,11 @@ class Notifier
     private $context;
 
     /**
+     * @var array
+     */
+    private $errorConfig;
+
+    /**
      * Constructor
      *
      * Available options are:
