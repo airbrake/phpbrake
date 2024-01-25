@@ -3,6 +3,7 @@
 namespace Airbrake;
 
 use Monolog\Logger;
+use Monolog\LogRecord;
 
 /**
  * Monolog handler that sends logs to Airbrake.
@@ -28,7 +29,7 @@ class MonologHandler extends \Monolog\Handler\AbstractProcessingHandler
     /**
      * {@inheritdoc}
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         if (isset($record['context']['exception'])) {
             $exc = $record['context']['exception'];
