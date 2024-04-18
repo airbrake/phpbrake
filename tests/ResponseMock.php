@@ -4,6 +4,16 @@ namespace Airbrake\Tests;
 
 class ResponseMock
 {
+    /**
+     * @var string
+     */
+    private $statusCode;
+
+    /**
+     * @var string
+     */
+    private $body;
+
     public function __construct($statusCode, $body)
     {
         $this->statusCode = $statusCode;

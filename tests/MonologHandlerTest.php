@@ -1,12 +1,13 @@
 <?php
 
 namespace Airbrake\Tests;
+use PHPUnit\Framework\TestCase;
 
-use PHPUnit_Framework_TestCase;
-
-class MonologHandlerTest extends PHPUnit_Framework_TestCase
+class MonologHandlerTest extends TestCase
 {
-    public function setUp()
+    private NotifierMock $notifier;
+
+    public function setUp(): void
     {
         $this->notifier = new NotifierMock([
             'projectId' => 1,

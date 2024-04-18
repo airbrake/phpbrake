@@ -10,7 +10,7 @@ define('HTTP_STATUS_TOO_MANY_REQUESTS', 429);
 
 define('ERR_UNAUTHORIZED', 'phpbrake: unauthorized: project id or key are wrong');
 define('ERR_IP_RATE_LIMITED', 'phpbrake: IP is rate limited');
-
+define('ERR_NOTIFICATIONS_DISABLED', 'phpbrake: error notifications are disabled');
 
 /**
  * Airbrake exception notifier.
@@ -20,14 +20,14 @@ class Notifier
     private static $instanceCount = 0;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $noticesURL;
+    protected $opt;
 
     /**
      * @var array
      */
-    private $opt;
+    private $errorConfig;
 
     /**
      * @var callable[]
@@ -59,8 +59,9 @@ class Notifier
      *  - environment
      *  - revision      git revision
      *  - rootDirectory
-     *  - keysBlacklist list of keys containing sensitive information that must be filtered out
+     *  - keysBlocklist list of keys containing sensitive information that must be filtered out
      *  - httpClient    http client implementing GuzzleHttp\ClientInterface
+     *  - remoteConfig  fetch the notifier config from the remote. (true/false)
      *
      * @param array $opt the options
      * @throws \Airbrake\Exception
@@ -71,21 +72,32 @@ class Notifier
             throw new Exception('phpbrake: Notifier requires projectId and projectKey');
         }
 
-        $this->opt = array_merge([
-          'host' => 'api.airbrake.io',
-          'keysBlacklist' => ['/password/i', '/secret/i'],
-        ], $opt);
+        if (isset($opt['keysBlacklist'])) {
+            error_log(
+                'phpbrake: keysBlacklist is a deprecated option. Use keysBlocklist instead.'
+            );
+            $opt['keysBlocklist'] = $opt['keysBlacklist'];
+        }
+
+        if (!isset($opt['remoteConfig'])) {
+            $opt['remoteConfig'] = true;
+        }
+
+        $this->opt = array_merge(
+            [ 'keysBlocklist' => ['/password/i', '/secret/i'] ],
+            $opt
+        );
+
         $this->httpClient = $this->newHTTPClient();
-        $this->noticesURL = $this->buildNoticesURL();
         $this->codeHunk = new CodeHunk();
         $this->context = $this->buildContext();
 
-        if (array_key_exists('keysBlacklist', $this->opt)) {
+        if (array_key_exists('keysBlocklist', $this->opt)) {
             $this->addFilter(function ($notice) {
                 $noticeKeys = array('context', 'params', 'session', 'environment');
                 foreach ($noticeKeys as $key) {
                     if (array_key_exists($key, $notice)) {
-                        $this->filterKeys($notice[$key], $this->opt['keysBlacklist']);
+                        $this->filterKeys($notice[$key], $this->opt['keysBlocklist']);
                     }
                 }
                 return $notice;
@@ -103,7 +115,7 @@ class Notifier
         $context = [
             'notifier' => [
                 'name' => 'phpbrake',
-                'version' => '0.7.2',
+                'version' => AIRBRAKE_NOTIFIER_VERSION,
                 'url' => 'https://github.com/airbrake/phpbrake',
             ],
             'os' => php_uname(),
@@ -304,6 +316,11 @@ class Notifier
             return $notice;
         }
 
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
+            return $notice;
+        }
+
         $req = $this->newHttpRequest($notice);
         $resp = $this->sendRequest($req);
         return $this->processHttpResponse($notice, $resp);
@@ -329,7 +346,12 @@ class Notifier
             'Authorization' => 'Bearer ' . $this->opt['projectKey'],
         ];
         $body = json_encode($notice);
-        return new \GuzzleHttp\Psr7\Request('POST', $this->noticesURL, $headers, $body);
+        return new \GuzzleHttp\Psr7\Request(
+            'POST',
+            $this->buildNoticesURL(),
+            $headers,
+            $body
+        );
     }
 
     protected function sendRequest($req)
@@ -413,6 +435,11 @@ class Notifier
             return $notice;
         }
 
+        if (!$this->errorNotifications()) {
+            $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
+            return $notice;
+        }
+
         $req = $this->newHttpRequest($notice);
         $sendPromise = $this->sendRequestAsync($req);
 
@@ -449,7 +476,7 @@ class Notifier
      */
     protected function buildNoticesURL()
     {
-        $schemeAndHost = $this->opt['host'];
+        $schemeAndHost = $this->errorHost();
         if (!preg_match('~^https?://~i', $schemeAndHost)) {
             $schemeAndHost = "https://$schemeAndHost";
         }
@@ -520,16 +547,50 @@ class Notifier
         return null;
     }
 
-    private function filterKeys(array &$arr, array $keysBlacklist)
+    protected function errorHost()
+    {
+        if (isset($this->opt['host'])) {
+            return $this->opt['host'];
+        } else {
+            return $this->remoteErrorConfig()['host'];
+        }
+    }
+
+    protected function errorNotifications()
+    {
+        return $this->remoteErrorConfig()['enabled'];
+    }
+
+    protected function remoteErrorConfig()
+    {
+        if (!$this->opt['remoteConfig']) {
+            return RemoteConfig::DEFAULT_CONFIG;
+        }
+
+        if ($this->errorConfig !== null) {
+            return $this->errorConfig;
+        }
+
+        $remoteConfig = $this->newRemoteConfig($this->opt['projectId']);
+        $this->errorConfig = $remoteConfig->errorConfig();
+        return $this->errorConfig;
+    }
+
+    protected function newRemoteConfig($projectId)
+    {
+        return new RemoteConfig($projectId);
+    }
+
+    private function filterKeys(array &$arr, array $keysBlocklist)
     {
         foreach ($arr as $k => $v) {
-            foreach ($keysBlacklist as $regexp) {
+            foreach ($keysBlocklist as $regexp) {
                 if (preg_match($regexp, $k)) {
                     $arr[$k] = '[Filtered]';
                     continue;
                 }
                 if (is_array($v)) {
-                    $this->filterKeys($arr[$k], $keysBlacklist);
+                    $this->filterKeys($arr[$k], $keysBlocklist);
                 }
             }
         }

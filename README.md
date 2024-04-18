@@ -1,13 +1,15 @@
+<p align="center">
+  <img src="https://airbrake-github-assets.s3.amazonaws.com/brand/airbrake-full-logo.png" width="200">
+</p>
+
 # PHPBrake
 
 [![Build Status](https://travis-ci.org/airbrake/phpbrake.svg?branch=master)](https://travis-ci.org/airbrake/phpbrake)
 
-![PHPBrake](http://f.cl.ly/items/0e2f2R2I0i081N2w3R0a/php.jpg)
-
 ## Features
 PHPBrake is the official [Airbrake](https://airbrake.io) PHP error notifier.
-PHPBrake includes many useful features that give you control over when and
-what you send to Airbrake, you can:
+PHPBrake supports PHP 8.2 and higher. PHPBrake includes many useful features
+that give you control over when and what you send to Airbrake, you can:
 
 - [Send notices from try-catch blocks in your code](https://github.com/airbrake/phpbrake#quickstart)
 - [Add custom data to a notice](https://github.com/airbrake/phpbrake#adding-custom-data-to-the-notice)
@@ -186,6 +188,26 @@ $notifier = new Airbrake\Notifier([
 ]);
 ```
 
+### remoteConfig
+
+Configures the remote configuration feature. Every 10 minutes the notifier
+will make a GET request to Airbrake servers to fetching a JSON document
+containing configuration settings for your project. The notifier will apply
+these new settings at runtime. By default, it is enabled.
+
+To disable this feature, configure your notifier with:
+
+```php
+$notifier = new Airbrake\Notifier([
+    // ...
+    'remoteConfig' => false,
+    // ...
+]);
+```
+
+Note: it is not recommended to disable this feature. It might negatively impact
+how your notifier works. Please use this option with caution.
+
 ### rootDirectory
 
 Configures the root directory of your project. Expects a String or a Pathname,
@@ -234,18 +256,24 @@ $notifier = new Airbrake\Notifier([
 
 ### Filtering keys
 
-With `keysBlacklist` option you can specify list of keys containing sensitive information that must be filtered out, e.g.:
+With `keysBlocklist` option you can specify list of keys containing sensitive information that must be filtered out, e.g.:
 
 ```php
 $notifier = new Airbrake\Notifier([
     // ...
-    'keysBlacklist' => ['/secret/i', '/password/i'],
+    'keysBlocklist' => ['/secret/i', '/password/i'],
     // ...
 ]);
 ```
 
 ## Running tests
 
+Run via docker:
+```
+docker compose run tests
+```
+
+Or run locally
 ```bash
 composer install
 vendor/bin/phpunit
@@ -265,7 +293,7 @@ In case you have a problem, question or a bug report, feel free to:
 
 * [file an issue](https://github.com/airbrake/phpbrake/issues)
 * [send us an email](mailto:support@airbrake.io)
-  
+
 ## License
 
 PHPBrake is licensed under [The MIT License (MIT)](LICENSE).

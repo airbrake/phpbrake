@@ -2,13 +2,15 @@
 
 namespace Airbrake\Tests;
 
-use PHPUnit_Framework_TestCase;
+use Airbrake;
 
-class NotifierTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class NotifierTest extends TestCase
 {
     use ChecksForException;
 
-    public function newNotifier()
+    public static function newNotifier()
     {
         return new NotifierMock([
             'projectId' => 1,
@@ -16,9 +18,9 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function exceptionProvider()
+    public static function exceptionProvider()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['HTTP_HOST'] = 'airbrake.io';
         $_SERVER['REQUEST_URI'] = '/hello';
         $notifier->notify(Troublemaker::newException());
@@ -28,14 +30,14 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testNotify()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $resp = $notifier->notify(Troublemaker::newException());
         $this->assertEquals('12345', $resp['id']);
     }
 
     public function testNotifyAsync()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $promise = $notifier->notifyAsync(Troublemaker::newException());
         $notice = null;
         $promise->then(function ($r) use (&$notice) {
@@ -55,7 +57,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedUrl, $notifier->url, $comment);
     }
 
-    public function noticesHostExamples()
+    public static function noticesHostExamples()
     {
         $defaultOpt = [
             'projectId' => 42,
@@ -80,27 +82,21 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         ]];
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testEmptyOptions()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock([]);
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testNoProjectKey()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock(['projectId' => 42]);
     }
 
-    /**
-     * @expectedException \Airbrake\Exception
-     */
     public function testNoProjectId()
     {
+        $this->expectException(Airbrake\Exception::class);
         new NotifierMock(['projectKey' => 'some-key']);
     }
 
@@ -126,13 +122,44 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('revision', $notifier->notice['context']);
     }
 
+    public function testRemoteConfigOptionDefaut()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 42,
+            'projectKey' => 'api_key'
+        ]);
+        $notifier->setupRemoteConfigMock();
+        $notifier->remoteConfigMock->mockErrorConfig('remote.airbrake.io');
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals(
+            $notifier->url,
+            "https://remote.airbrake.io/api/v3/projects/42/notices",
+            'The notice url is from the remote config'
+        );
+    }
+
+    public function testRemoteConfigOptionDisabled()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 42,
+            'projectKey' => 'api_key',
+            'remoteConfig' => false,
+        ]);
+        $notifier->notify(Troublemaker::newException());
+        $this->assertEquals(
+            $notifier->url,
+            "https://api.airbrake.io/api/v3/projects/42/notices",
+            'The notice url is not from the remote config'
+        );
+    }
+
     /** @dataProvider errorResponseProvider */
     public function testErrorResponse($notice, $expectedErrorMessage)
     {
         $this->assertEquals($expectedErrorMessage, $notice['error']);
     }
 
-    public function errorResponseProvider()
+    public static function errorResponseProvider()
     {
         $notifier = new NotifierMock([
             'projectId' => 1,
@@ -153,7 +180,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testContextUserAddr()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $notifier->notify(Troublemaker::newException());
 
@@ -165,7 +192,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testContextUserAddrXForwardedFor()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '1.1.1.1, 2.2.2.2';
         $notifier->notify(Troublemaker::newException());
 
@@ -175,12 +202,46 @@ class NotifierTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function testKeysBlacklist()
+    public function testDeprecatedKeysBlacklist()
     {
+        $capture = tmpfile();
+        $saved = ini_set('error_log', stream_get_meta_data($capture)['uri']);
+
         $notifier = new NotifierMock([
             'projectId' => 1,
             'projectKey' => 'api_key',
             'keysBlacklist' => ['/key1/'],
+        ]);
+
+        ini_set('error_log', $saved);
+        $errorLog = stream_get_contents($capture);
+
+        $deprecationWarning = '/keysBlacklist is a deprecated option/';
+
+        $this->assertMatchesRegularExpression($deprecationWarning, $errorLog);
+
+        $notice = $notifier->buildNotice(Troublemaker::newException());
+        $notice['params'] = [
+            'key1' => 'value1',
+            'key2' => 'value2',
+            'key3' => ['key1' => 'value1'],
+        ];
+        $resp = $notifier->sendNotice($notice);
+
+        $this->assertEquals('12345', $resp['id']);
+        $this->assertEquals([
+            'key1' => '[Filtered]',
+            'key2' => 'value2',
+            'key3' => ['key1' => '[Filtered]'],
+        ], $notifier->notice['params']);
+    }
+
+    public function testKeysBlocklist()
+    {
+        $notifier = new NotifierMock([
+            'projectId' => 1,
+            'projectKey' => 'api_key',
+            'keysBlocklist' => ['/key1/'],
         ]);
         $notice = $notifier->buildNotice(Troublemaker::newException());
         $notice['params'] = [
@@ -200,7 +261,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testNestedException()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $exc = Troublemaker::newNestedException();
         $notifier->notify($exc);
 
@@ -235,7 +296,7 @@ class NotifierTest extends PHPUnit_Framework_TestCase
 
     public function testPhpModulesAreSkipped()
     {
-        $notifier = $this->newNotifier();
+        $notifier = self::newNotifier();
         $exc = new FakeTraceException();
         $exc->addFakeTrace(2, [
             'file' => 'newrelic/Guzzle6',

@@ -1,0 +1,10 @@
+version: '3'
+services:
+  tests:
+    build: .
+    volumes:
+      - ./tests:/phpbrake/tests
+      - ./src:/phpbrake/src
+  watch_tests:
+    extends: tests
+    command: ./vendor/bin/phpunit-watcher watch
