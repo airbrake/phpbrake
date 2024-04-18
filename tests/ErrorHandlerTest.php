@@ -33,6 +33,19 @@ class ErrorHandlerTest extends TestCase
         ];
     }
 
+    public static function testSuppression()
+    {
+        list($notifier, $handler) = self::makeHandlerBoundNotifier();
+
+        // Cause two errors in a row, but suppress the second one. Verify that
+        // the notifier's most recent notice corresponds to the first error
+        // generated.
+        Troublemaker::echoUndefinedVar();
+        @Troublemaker::echoUndefinedIndex();
+
+        self::testPostsError($notifier);
+    }
+
     private static function makeHandlerBoundNotifier()
     {
         $notifier = new NotifierMock([
