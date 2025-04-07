@@ -316,7 +316,7 @@ class Notifier
             return $notice;
         }
 
-        if (!$this->errorNotifications()) {
+        if ($this->opt['remoteConfig'] === true && !$this->errorNotifications()) {
             $notice['error'] = ERR_NOTIFICATIONS_DISABLED;
             return $notice;
         }
