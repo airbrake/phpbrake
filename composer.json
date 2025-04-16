@@ -11,7 +11,7 @@
   "homepage": "https://airbrake.io",
   "license": "MIT",
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.4",
     "guzzlehttp/guzzle": ">=6.3",
     "cash/lrucache": "^1.0"
   },
