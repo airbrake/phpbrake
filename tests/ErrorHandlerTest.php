@@ -29,8 +29,17 @@ class ErrorHandlerTest extends TestCase
     {
         return [
             [self::arrangeOnErrorNotifier(), 'OnError'],
-            [self::arrangeOnShutdownNotifier(), 'OnShutdown'],
         ];
+    }
+
+    public function testSuppression()
+    {
+        list($notifier, $handler) = self::makeHandlerBoundNotifier();
+
+        @Troublemaker::echoUndefinedIndex();
+        $handler->onShutdown();
+
+        $this->assertNull($notifier->notice);
     }
 
     private static function makeHandlerBoundNotifier()
@@ -50,15 +59,6 @@ class ErrorHandlerTest extends TestCase
         $saved = error_reporting(E_ALL | E_STRICT);
         list($notifier) = self::makeHandlerBoundNotifier();
         Troublemaker::echoUndefinedVar();
-
-        return $notifier;
-    }
-
-    private static function arrangeOnShutdownNotifier()
-    {
-        list($notifier, $handler) = self::makeHandlerBoundNotifier();
-        @Troublemaker::echoUndefinedVar();
-        $handler->onShutdown();
 
         return $notifier;
     }
