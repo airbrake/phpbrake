@@ -31,18 +31,18 @@ class ErrorHandler
      */
     public function onError($code, $message, $file, $line)
     {
+        $this->lastError = [
+            'message' => $message,
+            'file' => $file,
+            'line' => $line
+        ];
+
         // If error_reporting() setting has changed since the ErrorHandler was
         // installed, respect the new settings. This also respects the
         // @-operator (issue #105)
         if ((error_reporting() & $code) === 0) {
             return false;
         }
-
-        $this->lastError = [
-            'message' => $message,
-            'file' => $file,
-            'line' => $line
-        ];
 
         $trace = debug_backtrace();
         if (count($trace) > 0 && !isset($trace[0]['file'])) {
